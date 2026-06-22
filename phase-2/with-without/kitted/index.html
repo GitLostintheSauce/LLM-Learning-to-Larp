@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Profile — Self-Reflection Battery</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
+    --green:#3fb950; --red:#f85149; --amber:#d29922;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;padding:0 0 80px}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--border);padding:26px 0 18px;margin-bottom:24px}
+  h1{font-size:22px;margin:0 0 6px}
+  .disclaimer{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--amber);
+    border-radius:8px;padding:12px 14px;color:var(--muted);font-size:13px;margin-top:14px}
+  .screen{display:none}
+  .screen.active{display:block}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+  h2{font-size:18px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+  button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;
+    font-size:15px;cursor:pointer;font-family:inherit}
+  button:hover{filter:brightness(1.1)}
+  .big{font-size:64px;text-align:center;min-height:90px;display:flex;align-items:center;justify-content:center;letter-spacing:6px}
+  input[type=text]{background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;padding:10px;font-size:18px;width:100%;font-family:inherit}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .stroop-word{font-size:54px;font-weight:700;text-align:center;min-height:80px}
+  .color-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+  .color-btns button{padding:16px;font-size:16px}
+  .trail{position:relative;height:360px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;margin-top:12px}
+  .node{position:absolute;width:42px;height:42px;border-radius:50%;background:var(--bg);
+    border:2px solid var(--accent2);color:var(--text);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-weight:600;user-select:none}
+  .node.done{background:var(--green);border-color:var(--green);color:#06250f}
+  .matrix{font-size:34px;letter-spacing:10px;text-align:center;margin:10px 0 18px}
+  .opts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+  .opts button{font-size:30px;padding:14px}
+  .progress{color:var(--muted);font-size:13px;margin-bottom:10px}
+  .bar{height:14px;background:var(--panel2);border:1px solid var(--border);border-radius:999px;overflow:hidden}
+  .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+  .domain{margin-bottom:14px}
+  .domain .lab{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+  .tag{display:inline-block;background:var(--panel2);border:1px solid var(--border);border-radius:999px;
+    padding:3px 10px;font-size:12px;margin:2px 4px 2px 0;color:var(--accent2)}
+  ul{margin:8px 0 0;padding-left:20px}
+  .words{color:var(--muted);font-size:13px;margin-top:8px;min-height:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Cognitive Profile — Self-Reflection Battery</h1>
+    <div class="disclaimer">Modeled on classic neuropsychological subtests (digit span, Stroop,
+    trail-making, matrix reasoning, verbal fluency). <b>This is a self-reflection tool, not a clinical
+    evaluation</b> — no population norms, no clinician. Read the results as a structured hint about
+    yourself, not a diagnosis or a verdict on your worth.</div>
+  </header>
+
+  <section id="intro" class="screen active">
+    <div class="card">
+      <h2>What this measures</h2>
+      <p class="sub">Five short tasks, ~8 minutes. Each samples one cognitive domain. At the end you get a
+      profile, fitting career directions, and things to work on.</p>
+      <ol>
+        <li><b>Digit span</b> — working memory</li>
+        <li><b>Stroop</b> — processing speed &amp; inhibition</li>
+        <li><b>Trail-making</b> — attention &amp; mental flexibility</li>
+        <li><b>Pattern series</b> — fluid reasoning</li>
+        <li><b>Verbal fluency</b> — idea generation</li>
+      </ol>
+      <button onclick="show('digitspan');startDigitSpan()">Begin</button>
+    </div>
+  </section>
+
+  <section id="digitspan" class="screen">
+    <div class="card">
+      <div class="progress">Task 1 of 5 · Digit span (working memory)</div>
+      <h2 id="ds-title">Forward span</h2>
+      <p class="sub" id="ds-instr">Watch the digits, then type them back in the same order.</p>
+      <div class="big" id="ds-display"></div>
+      <div id="ds-input-area" style="display:none">
+        <input type="text" id="ds-input" inputmode="numeric" autocomplete="off" placeholder="type the digits">
+        <div class="row" style="margin-top:12px"><button onclick="submitDigits()">Submit</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stroop" class="screen">
+    <div class="card">
+      <div class="progress">Task 2 of 5 · Stroop (speed &amp; inhibition)</div>
+      <h2>Name the INK COLOR</h2>
+      <p class="sub">Click the color the word is <b>printed in</b> — ignore what the word says. <span id="stroop-count"></span></p>
+      <div class="stroop-word" id="stroop-word">+</div>
+      <div class="color-btns" id="stroop-btns"></div>
+    </div>
+  </section>
+
+  <section id="trails" class="screen">
+    <div class="card">
+      <div class="progress">Task 3 of 5 · Trail-making (attention &amp; flexibility)</div>
+      <h2 id="tr-title">Part A</h2>
+      <p class="sub" id="tr-instr">Click the circles in order: 1 → 2 → 3 …</p>
+      <div class="row"><span id="tr-status" class="words"></span></div>
+      <div class="trail" id="tr-area"></div>
+    </div>
+  </section>
+
+  <section id="matrices" class="screen">
+    <div class="card">
+      <div class="progress" id="mx-progress">Task 4 of 5 · Pattern series (fluid reasoning)</div>
+      <h2>What comes next?</h2>
+      <div class="matrix" id="mx-question"></div>
+      <div class="opts" id="mx-opts"></div>
+    </div>
+  </section>
+
+  <section id="fluency" class="screen">
+    <div class="card">
+      <div class="progress">Task 5 of 5 · Verbal fluency (idea generation)</div>
+      <h2>Words starting with “F”</h2>
+      <p class="sub">Type as many words beginning with <b>F</b> as you can in 60 seconds. Press Enter after each.
+      <span id="fl-timer" style="color:var(--accent2)"></span></p>
+      <input type="text" id="fl-input" autocomplete="off" placeholder="e.g. forest" disabled>
+      <div class="words" id="fl-words"></div>
+      <div class="row" style="margin-top:14px"><button id="fl-start" onclick="startFluency()">Start 60s</button></div>
+    </div>
+  </section>
+
+  <section id="results" class="screen">
+    <div class="card">
+      <h2>Your cognitive profile</h2>
+      <p class="sub">Scored on this tool's documented thresholds (see CLAUDE.md), not clinical norms.</p>
+      <div id="res-domains"></div>
+    </div>
+    <div class="card">
+      <h2>Likely strengths &amp; career directions</h2>
+      <div id="res-careers"></div>
+    </div>
+    <div class="card">
+      <h2>Things to work on</h2>
+      <div id="res-improve"></div>
+    </div>
+    <div class="disclaimer">Reminder: this is self-reflection, <b>not a diagnosis</b>. A low score here means
+    "this task, today, on this rough scale" — not a limit on what you can do.</div>
+  </section>
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+const R = {}; // shared raw-score bucket — keys defined by the build-subtest skill
+
+// ================= DIGIT SPAN ================= (working memory)
+let dsMode='forward', dsLen=3, dsExpected=[], dsMaxF=0, dsMaxB=0;
+function startDigitSpan(){ dsMode='forward'; dsLen=3; dsMaxF=0; dsMaxB=0;
+  document.getElementById('ds-title').textContent='Forward span';
+  document.getElementById('ds-instr').textContent='Watch the digits, then type them back in the same order.';
+  document.getElementById('ds-input').addEventListener('keydown',e=>{ if(e.key==='Enter') submitDigits(); });
+  nextDigitTrial();
+}
+function nextDigitTrial(){
+  const seq=Array.from({length:dsLen},()=>Math.floor(Math.random()*10));
+  dsExpected = dsMode==='forward'? seq.slice() : seq.slice().reverse();
+  document.getElementById('ds-input-area').style.display='none';
+  const disp=document.getElementById('ds-display'); disp.textContent='';
+  let i=0;
+  const tick=()=>{
+    if(i<seq.length){ disp.textContent=seq[i]; i++;
+      setTimeout(()=>{disp.textContent='';setTimeout(tick,220);},680);
+    } else {
+      document.getElementById('ds-input-area').style.display='block';
+      const inp=document.getElementById('ds-input'); inp.value=''; inp.focus();
+    }
+  };
+  setTimeout(tick,500);
+}
+function submitDigits(){
+  const val=document.getElementById('ds-input').value.replace(/\D/g,'');
+  if(val===dsExpected.join('')){
+    if(dsMode==='forward') dsMaxF=dsLen; else dsMaxB=dsLen;
+    dsLen++; nextDigitTrial();
+  } else if(dsMode==='forward'){
+    dsMode='backward'; dsLen=3;
+    document.getElementById('ds-title').textContent='Backward span';
+    document.getElementById('ds-instr').textContent='Now type the digits in REVERSE order.';
+    nextDigitTrial();
+  } else {
+    R.digitForward=dsMaxF; R.digitBackward=dsMaxB;       // raw scores
+    show('stroop'); startStroop();
+  }
+}
+
+// ================= STROOP ================= (speed & inhibition)
+const COLORS=[['RED','#f85149'],['GREEN','#3fb950'],['BLUE','#4dd0e1'],['YELLOW','#d29922']];
+let stroopTrial=0, stroopTotal=18, stroopCorrect=0, stroopRTs=[], stroopInk=null, stroopStart=0;
+function startStroop(){ stroopTrial=0; stroopCorrect=0; stroopRTs=[];
+  const box=document.getElementById('stroop-btns'); box.innerHTML='';
+  COLORS.forEach(([name,hex])=>{
+    const b=document.createElement('button'); b.textContent=name; b.style.background=hex;
+    b.style.color='#06120a'; b.onclick=()=>answerStroop(name); box.appendChild(b);
+  });
+  nextStroop();
+}
+function nextStroop(){
+  if(stroopTrial>=stroopTotal){
+    R.stroopAcc = stroopCorrect/stroopTotal;
+    R.stroopRT = stroopRTs.length? stroopRTs.slice().sort((a,b)=>a-b)[Math.floor(stroopRTs.length/2)] : 1200;
+    show('trails'); startTrails(); return;
+  }
+  const word=COLORS[Math.floor(Math.random()*4)][0];
+  const inkIdx=Math.floor(Math.random()*4);
+  const w=document.getElementById('stroop-word');
+  w.textContent=word; w.style.color=COLORS[inkIdx][1]; stroopInk=COLORS[inkIdx][0];
+  document.getElementById('stroop-count').textContent=`(${stroopTrial+1}/${stroopTotal})`;
+  stroopStart=performance.now();
+}
+function answerStroop(name){
+  stroopRTs.push(performance.now()-stroopStart);
+  if(name===stroopInk) stroopCorrect++;
+  stroopTrial++; nextStroop();
+}
+
+// ================= TRAIL MAKING ================= (attention & flexibility)
+const trailA=[['1',60,60],['2',300,40],['3',520,90],['4',420,200],['5',180,150],
+              ['6',80,280],['7',300,300],['8',520,280],['9',420,330]];
+const trailB=[['1',60,60],['A',320,50],['2',540,100],['B',430,210],['3',180,150],
+              ['C',80,290],['4',300,310],['D',520,300]];
+let trOrder=[], trNext=0, trStart=0, trErr=0, trTimeA=0;
+function startTrails(){ renderTrail(trailA,'A'); }
+function renderTrail(nodes,part){
+  trOrder=nodes.map(n=>n[0]); trNext=0; trErr=0; trStart=performance.now();
+  document.getElementById('tr-title').textContent='Part '+part;
+  document.getElementById('tr-instr').textContent = part==='A'
+    ? 'Click the circles in order: 1 → 2 → 3 …'
+    : 'Now alternate numbers and letters: 1 → A → 2 → B …';
+  document.getElementById('tr-status').textContent='';
+  const area=document.getElementById('tr-area'); area.innerHTML='';
+  nodes.forEach(([label,x,y])=>{
+    const d=document.createElement('div'); d.className='node'; d.textContent=label;
+    d.style.left=x+'px'; d.style.top=y+'px';
+    d.onclick=()=>clickNode(d,label,part); area.appendChild(d);
+  });
+}
+function clickNode(el,label,part){
+  if(label===trOrder[trNext]){ el.classList.add('done'); trNext++;
+    if(trNext===trOrder.length){
+      const t=performance.now()-trStart;
+      if(part==='A'){ trTimeA=t; document.getElementById('tr-status').textContent='Part A done. Loading Part B…';
+        setTimeout(()=>renderTrail(trailB,'B'),900);
+      } else {
+        R.trailA=trTimeA; R.trailB=t;                  // raw scores
+        show('matrices'); startMatrices();
+      }
+    }
+  } else { trErr++; document.getElementById('tr-status').textContent='Errors: '+trErr; }
+}
+
+// ================= PATTERN SERIES ================= (fluid reasoning)
+const MX=[
+  {q:'▲  ▲▲  ▲▲▲  ?', opts:['▲','▲▲▲▲','▲▲','◆'], a:1},
+  {q:'🔴 🟠 🟡 🟢  ?', opts:['🔵','🔴','⚫','🟣'], a:0},
+  {q:'◐ ◓ ◑ ◒  ?', opts:['◗','◐','●','○'], a:1},
+  {q:'2  4  8  16  ?', opts:['18','24','32','20'], a:2},
+];
+let mxIdx=0, mxCorrect=0;
+function startMatrices(){ mxIdx=0; mxCorrect=0; renderMatrix(); }
+function renderMatrix(){
+  if(mxIdx>=MX.length){ R.matrixCorrect=mxCorrect; show('fluency'); return; }  // raw score
+  const item=MX[mxIdx];
+  document.getElementById('mx-progress').textContent=`Task 4 of 5 · Pattern series (${mxIdx+1}/${MX.length})`;
+  document.getElementById('mx-question').textContent=item.q;
+  const box=document.getElementById('mx-opts'); box.innerHTML='';
+  item.opts.forEach((o,i)=>{
+    const b=document.createElement('button'); b.textContent=o;
+    b.onclick=()=>{ if(i===item.a) mxCorrect++; mxIdx++; renderMatrix(); };
+    box.appendChild(b);
+  });
+}
+
+// ================= VERBAL FLUENCY ================= (idea generation)
+let flWords=new Set(), flLeft=60, flTimer=null;
+function startFluency(){
+  flWords=new Set(); flLeft=60;
+  document.getElementById('fl-start').style.display='none';
+  const inp=document.getElementById('fl-input'); inp.disabled=false; inp.value=''; inp.focus();
+  inp.onkeydown=(e)=>{ if(e.key==='Enter'){ addWord(inp.value); inp.value=''; } };
+  document.getElementById('fl-timer').textContent='60s left';
+  flTimer=setInterval(()=>{
+    flLeft--; document.getElementById('fl-timer').textContent=flLeft+'s left';
+    if(flLeft<=0){ clearInterval(flTimer); endFluency(); }
+  },1000);
+}
+function addWord(w){
+  w=w.trim().toLowerCase();
+  if(w.length>1 && w[0]==='f' && /^[a-z]+$/.test(w)) flWords.add(w);
+  document.getElementById('fl-words').textContent=[...flWords].join(', ');
+}
+function endFluency(){
+  document.getElementById('fl-input').disabled=true;
+  R.fluencyCount=flWords.size;                          // raw score
+  computeResults(); show('results');
+}
+
+// ================= SCORING (single source of truth) =================
+// Per CLAUDE.md: every 0–100 mapping lives HERE, and every threshold has a rationale.
+function clamp(n){ return Math.max(0,Math.min(100,Math.round(n))); }
+const SCORING = {
+  wm:     r => clamp((r.digitForward + r.digitBackward) / 14 * 100),      // 14 = strong combined span (7F+7B)
+  speed:  r => clamp(r.stroopAcc*100 - Math.max(0, r.stroopRT-700)/25),   // 700ms brisk; each 25ms slower = -1
+  flex:   r => clamp(100 - Math.max(0, r.trailB - r.trailA)/120),         // 0ms switch-cost = 100; 120ms = -1
+  reason: r => clamp(r.matrixCorrect / 4 * 100),                          // 4 items, 25 pts each
+  verbal: r => clamp(r.fluencyCount / 16 * 100),                          // ~16 "F" words in 60s is strong
+};
+
+const DOMAINS={
+  wm:'Working memory', speed:'Processing speed & inhibition',
+  flex:'Attention & flexibility', reason:'Fluid reasoning', verbal:'Verbal fluency'
+};
+const CAREERS={
+  wm:['data analysis','accounting / finance','project coordination','software engineering'],
+  speed:['operations','trading','editing / proofreading','emergency or clinical work'],
+  flex:['management','UX / product design','teaching','consulting'],
+  reason:['research','engineering','strategy','law'],
+  verbal:['writing','marketing','sales','communications / PR'],
+};
+const TIPS={
+  wm:'Practice dual-n-back or chunking; rehearse phone numbers without writing them down.',
+  speed:'Time-boxed drills (mental-math sprints); cut multitasking to build clean focus.',
+  flex:'Switch tasks deliberately; try puzzles that force you to change rules mid-stream.',
+  reason:'Do logic puzzles (Raven-style, Sudoku); explain WHY an answer works, not just that it does.',
+  verbal:'Daily word-generation games; read widely to grow the vocabulary you retrieve fast.',
+};
+function computeResults(){
+  const scores={};
+  for(const k in SCORING) scores[k]=SCORING[k](R);
+
+  const dom=document.getElementById('res-domains'); dom.innerHTML='';
+  Object.entries(scores).forEach(([k,v])=>{
+    const d=document.createElement('div'); d.className='domain';
+    d.innerHTML=`<div class="lab"><span>${DOMAINS[k]}</span><span>${v}</span></div>
+      <div class="bar"><span style="width:${v}%"></span></div>`;
+    dom.appendChild(d);
+  });
+  const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const top=ranked.slice(0,2), low=ranked.slice(-2);
+
+  const car=document.getElementById('res-careers');
+  car.innerHTML=`<p class="sub">Your two strongest domains were <b>${DOMAINS[top[0][0]]}</b>
+    and <b>${DOMAINS[top[1][0]]}</b>. Directions that lean on those:</p>`;
+  top.forEach(([k])=>{
+    const tags=CAREERS[k].map(c=>`<span class="tag">${c}</span>`).join('');
+    car.innerHTML+=`<div style="margin-bottom:10px"><b>${DOMAINS[k]}</b><br>${tags}</div>`;
+  });
+
+  const imp=document.getElementById('res-improve');
+  imp.innerHTML=`<p class="sub">Your two lowest domains this run — small ways to push them up:</p><ul>`;
+  low.forEach(([k])=>{ imp.innerHTML+=`<li><b>${DOMAINS[k]}:</b> ${TIPS[k]}</li>`; });
+  imp.innerHTML+='</ul>';
+}
+</script>
+</body>
+</html>
