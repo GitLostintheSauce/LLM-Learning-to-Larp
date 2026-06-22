@@ -1,0 +1,13 @@
+# Secrets — never commit API keys or credentials
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+**/secrets/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
