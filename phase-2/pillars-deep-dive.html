@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — Inside the Four Pillars</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
+    --model:#ff8fab; --context:#4dd0e1; --harness:#7c5cff; --tools:#d29922;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;padding-bottom:80px}
+  a{color:var(--accent2)}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--border);padding:34px 0 26px;margin-bottom:24px}
+  .kicker{color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  header h1{font-size:30px;margin:0 0 8px}
+  header p{color:var(--muted);font-size:15px;margin:0;max-width:640px}
+  h2{font-size:21px;margin:34px 0 6px;display:flex;align-items:center;gap:10px}
+  .dot{width:12px;height:12px;border-radius:3px;flex:none}
+  .m .dot{background:var(--model)} .c .dot{background:var(--context)}
+  .h .dot{background:var(--harness)} .t .dot{background:var(--tools)}
+  .lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .part{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+  .part b{color:var(--text)}
+  .hint{color:var(--muted);font-size:13px;margin-top:4px}
+  .todo{color:var(--tools);font-size:13px;font-style:italic;display:block;margin-top:8px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin:14px 0}
+  .check{background:var(--panel2);border:1px dashed var(--border);border-radius:10px;padding:16px 18px;margin:30px 0}
+  .check h2{border:0;margin:0 0 8px;font-size:15px;color:var(--accent2)}
+  .check ul{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+  code{background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 5px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Phase 2 · Inside the pillars</div>
+    <h1>The Four Pillars, Cracked Open</h1>
+    <p>Phase 1 was the four boxes. Phase 2 splits each box into its real parts — explained
+    in my own words, each with a real example from a tool I actually used.</p>
+  </header>
+
+  <!-- ============ MODEL ============ -->
+  <h2 class="m"><span class="dot"></span>The Model splits into…</h2>
+  <p class="lead">The text-predictor itself, in parts.</p>
+  <div class="part"><b>Tokens</b> — the chunks the model actually reads (not words).
+    <span class="todo">🔲 Your one-liner + example (e.g. how "unbelievable" splits).</span></div>
+  <div class="part"><b>Training vs. inference</b> — built once vs. used (frozen prediction).
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Temperature &amp; sampling</b> — the randomness dial.
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Open vs. closed models</b> — download-and-run vs. API-only.
+    <span class="todo">🔲 Your one-liner.</span></div>
+
+  <!-- ============ CONTEXT ============ -->
+  <h2 class="c"><span class="dot"></span>The Context splits into…</h2>
+  <p class="lead">Everything the model can see, in parts.</p>
+  <div class="part"><b>Roles</b> — system / user / assistant messages.
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>The context window</b> — the max it can see; why long chats "forget."
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Prompt engineering</b> — how phrasing changes the output.
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Retrieval (RAG)</b> — stuffing relevant info into context on demand.
+    <span class="todo">🔲 Your one-liner.</span></div>
+
+  <!-- ============ HARNESS ============ -->
+  <h2 class="h"><span class="dot"></span>The Harness / Loop splits into…</h2>
+  <p class="lead">The program that wraps the model and loops it. <b>I built one by hand:</b>
+  <a href="tiny_agent.py">tiny_agent.py</a>.</p>
+  <div class="part"><b>Think → act → observe loop</b> — the cycle an agent runs.
+    <div class="hint">Real example: the <code>while True:</code> loop in my agent.</div>
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Tool-call protocol</b> — how the model "asks" for a tool and gets the result back.
+    <div class="hint">Real example: the model returns a <code>tool_use</code>, my code runs it, sends a <code>tool_result</code>.</div>
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Subagents</b> — helpers spun up for sub-tasks.
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Memory &amp; context management</b> — keep / summarize / drop as context fills.
+    <span class="todo">🔲 Your one-liner.</span></div>
+
+  <!-- ============ TOOLS ============ -->
+  <h2 class="t"><span class="dot"></span>The Tools &amp; World splits into…</h2>
+  <p class="lead">The outside world the harness acts on. <b>I used every part of this in the
+  with/without experiment.</b></p>
+  <div class="part"><b>Tool definitions</b> — how a tool is described so the model knows when/how to use it.
+    <div class="hint">Real example: the <code>calculate</code> schema in my agent.</div>
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>MCP</b> — a standard plug for connecting external tools to the harness.
+    <div class="hint">Real example: the visualize MCP server that drew my Phase-1 diagram.</div>
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Permissions &amp; safety</b> — what the harness may do without asking.
+    <div class="hint">Real example: the allowlist in <code>.claude/settings.json</code> (kitted run).</div>
+    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Hooks</b> — actions that fire automatically before/after a step.
+    <div class="hint">Real example: <code>validate.py</code> running after every edit (kitted run).</div>
+    <span class="todo">🔲 Your one-liner.</span></div>
+
+  <!-- ============ AGENT ============ -->
+  <h2>My hand-built agent</h2>
+  <div class="card">
+    <p class="lead">The ★ exercise: <a href="tiny_agent.py">tiny_agent.py</a> — a loop
+    around Claude that runs one tool until done.</p>
+    <span class="todo">🔲 Paste your line-by-line walkthrough here, in your own words — especially
+    <b>why the model can't run the calculator itself.</b></span>
+  </div>
+
+  <!-- ============ WITH / WITHOUT ============ -->
+  <h2>With / without: what the knobs bought me</h2>
+  <div class="card">
+    <p class="lead">Same app built twice —
+    <a href="with-without/naked/index.html">naked</a> vs.
+    <a href="with-without/kitted/index.html">kitted</a>.</p>
+    <span class="todo">🔲 Your findings: did they feel different or only differ under the hood?
+    Which knob surprised you most? Which one would you keep first, and why?</span>
+  </div>
+
+  <div class="check">
+    <h2>Gate checklist (the one rule)</h2>
+    <ul>
+      <li>Fill every <span style="color:var(--text)">🔲</span> in <b>your own words</b> — if you can't defend a sentence cold, rewrite it.</li>
+      <li>For the no-AI gate: pick <b>one</b> pillar, break it into its parts aloud, a real example for each. (Tools is your strongest — you used all four.)</li>
+      <li>Record yourself doing it with nothing open.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
