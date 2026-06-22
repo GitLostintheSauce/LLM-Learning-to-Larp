@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Big Picture — LLM &amp; Agent Harness</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
+    --model:#ff8fab; --context:#4dd0e1; --harness:#7c5cff; --tools:#d29922;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; padding-bottom:80px;
+  }
+  a{color:var(--accent2)}
+  .wrap{max-width:880px; margin:0 auto; padding:0 20px}
+  header{border-bottom:1px solid var(--border); padding:34px 0 26px; margin-bottom:28px}
+  header .kicker{color:var(--accent); font-size:13px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px}
+  header h1{font-size:30px; margin:0 0 8px; letter-spacing:.2px}
+  header p{color:var(--muted); font-size:15px; margin:0; max-width:620px}
+
+  .thesis{background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--accent);
+    border-radius:10px; padding:18px 20px; margin:24px 0; font-size:18px}
+  .todo{color:var(--tools); font-size:13px; display:block; margin-top:8px; font-style:italic}
+
+  h2{font-size:21px; margin:40px 0 14px; border-bottom:1px solid var(--border); padding-bottom:8px}
+
+  .pillars{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:640px){.pillars{grid-template-columns:1fr}}
+  .pillar{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px}
+  .pillar h3{margin:0 0 8px; font-size:16px; display:flex; align-items:center; gap:9px}
+  .dot{width:11px; height:11px; border-radius:3px; flex:none}
+  .pillar p{margin:0; color:var(--text); font-size:14.5px}
+  .m .dot{background:var(--model)} .c .dot{background:var(--context)}
+  .h .dot{background:var(--harness)} .t .dot{background:var(--tools)}
+
+  ol.flow{counter-reset:step; list-style:none; padding:0; margin:0}
+  ol.flow li{position:relative; background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:14px 16px 14px 54px; margin-bottom:10px}
+  ol.flow li::before{counter-increment:step; content:counter(step);
+    position:absolute; left:14px; top:13px; width:26px; height:26px; border-radius:50%;
+    background:var(--accent); color:#fff; font-size:13px; font-weight:600;
+    display:flex; align-items:center; justify-content:center}
+
+  figure{margin:22px 0 0; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px}
+  figure img{width:100%; border-radius:6px; display:block}
+  figcaption{color:var(--muted); font-size:13px; margin-top:10px; text-align:center}
+
+  .check{background:var(--panel2); border:1px dashed var(--border); border-radius:10px; padding:16px 18px; margin:32px 0}
+  .check h2{border:0; margin:0 0 8px; font-size:15px; color:var(--accent2)}
+  .check ul{margin:0; padding-left:20px; color:var(--muted); font-size:14px}
+  .key{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Phase 1 · The Big Map</div>
+    <h1>The Big Picture</h1>
+    <p>What actually happens between the moment I type a request into Claude Code and the moment it edits a file — explained in my own words, at high altitude.</p>
+  </header>
+
+  <!-- ONE-SENTENCE THESIS — write this yourself, out loud, with nothing open -->
+  <div class="thesis">
+    🔲 <em>Your turn:</em> in one or two sentences, say the whole thing at the highest altitude —
+    a request becomes an edited file because four parts take turns in a loop.
+    <span class="todo">Replace this box with your own sentence. It should be the first thing you can defend cold.</span>
+  </div>
+
+  <h2>The four pillars</h2>
+  <div class="pillars">
+    <div class="pillar m">
+      <h3><span class="dot"></span>The Model</h3>
+      <p>Takes in text/commands and predicts what happens next. It decides what to do and asks the harness to do the tasks. It deciphers what the harness did and interprets what should happen next. A model is static and only answers from its current context.</p>
+    </div>
+    <div class="pillar c">
+      <h3><span class="dot"></span>The Context</h3>
+      <p>The memory of the model at that moment. The context window consists of a past number of tokens — what the model knows is only what is in it.</p>
+    </div>
+    <div class="pillar h">
+      <h3><span class="dot"></span>The Harness (loop)</h3>
+      <p>The bridge between the Model and the tools — like a cable cord. It turns the model's commands into actionable code that uses tools to actually do the stuff you want, then sends the results back to the model to check them, looping until things are correct.</p>
+    </div>
+    <div class="pillar t">
+      <h3><span class="dot"></span>The Tools &amp; Outside World</h3>
+      <p>Tools are digital interfaces the AI can call to perform tasks (for example, API calls). The outside world is everything beyond the model's current context.</p>
+    </div>
+  </div>
+
+  <h2>The full flow: a request → an edited file</h2>
+  <ol class="flow">
+    <li>A human gives a text request — for example, <em>"create a file called hello.txt with one line in it."</em></li>
+    <li>The harness assembles the context.</li>
+    <li>The harness sends the context to a model.</li>
+    <li>The model reads the context and decides which tools to ask the harness to use.</li>
+    <li>The harness runs the tool, interacting with the outside world.</li>
+    <li>The tool reports back (<em>"file created successfully"</em>); the harness takes that result and adds it to the context.</li>
+    <li>The model reads the updated context and decides: if the goal is met, it reports back to the user; if not, it runs again with new instructions — looping with commands like <code>cat</code> until done.</li>
+  </ol>
+
+  <figure>
+    <img src="phase-1/diagram.jpg" alt="Hand-drawn diagram of the four pillars connected by the request loop">
+    <figcaption>My hand-drawn map of the loop (draft 5). Full notes &amp; earlier drafts in <code>/phase-1</code>.</figcaption>
+  </figure>
+
+  <div class="check">
+    <h2>Defend-it checklist (the one rule)</h2>
+    <ul>
+      <li>Read every sentence above <span class="key">out loud, with nothing open.</span> If you can't defend it, rewrite it in your own words.</li>
+      <li>Write the <span class="key">🔲 thesis box</span> yourself — that opening sentence must be unmistakably yours.</li>
+      <li>Confirm you can name the <span class="key">one moment the model only <em>asks</em></span> vs. where the harness actually <em>does</em>.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
