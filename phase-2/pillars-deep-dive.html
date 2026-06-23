@@ -28,6 +28,7 @@
   .part{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px}
   .part b{color:var(--text)}
   .hint{color:var(--muted);font-size:13px;margin-top:4px}
+  .mine{color:var(--text);font-size:14px;margin-top:6px}
   .todo{color:var(--tools);font-size:13px;font-style:italic;display:block;margin-top:8px}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin:14px 0}
   .check{background:var(--panel2);border:1px dashed var(--border);border-radius:10px;padding:16px 18px;margin:30px 0}
@@ -48,58 +49,58 @@
   <!-- ============ MODEL ============ -->
   <h2 class="m"><span class="dot"></span>The Model splits into…</h2>
   <p class="lead">The text-predictor itself, in parts.</p>
-  <div class="part"><b>Tokens</b> — the chunks the model actually reads (not words).
-    <span class="todo">🔲 Your one-liner + example (e.g. how "unbelievable" splits).</span></div>
-  <div class="part"><b>Training vs. inference</b> — built once vs. used (frozen prediction).
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Temperature &amp; sampling</b> — the randomness dial.
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Open vs. closed models</b> — download-and-run vs. API-only.
-    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Tokens</b>
+    <div class="mine">Tokens are the chunks — often pieces of words — that the model actually reads; text gets broken apart into them (e.g. “unbelievable” → a few tokens).</div></div>
+  <div class="part"><b>Training vs. inference</b>
+    <div class="mine">Training is when the model learns from a large dataset to infer what comes next, then gets validated on new unseen data. Inference is actually using the finished, frozen model to get an answer.</div></div>
+  <div class="part"><b>Temperature &amp; sampling</b>
+    <div class="mine">How probabilistic (random vs. focused) you want the model’s answers to be.</div></div>
+  <div class="part"><b>Open vs. closed models</b>
+    <div class="mine">Open models let you download the architecture and run it yourself; closed models run on separate servers (API-only).</div></div>
 
   <!-- ============ CONTEXT ============ -->
   <h2 class="c"><span class="dot"></span>The Context splits into…</h2>
   <p class="lead">Everything the model can see, in parts.</p>
-  <div class="part"><b>Roles</b> — system / user / assistant messages.
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>The context window</b> — the max it can see; why long chats "forget."
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Prompt engineering</b> — how phrasing changes the output.
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Retrieval (RAG)</b> — stuffing relevant info into context on demand.
-    <span class="todo">🔲 Your one-liner.</span></div>
+  <div class="part"><b>Roles</b>
+    <div class="mine">Roles define which context is which and whom it is from (system / user / assistant).</div></div>
+  <div class="part"><b>The context window</b>
+    <div class="mine">The context window is how many tokens a model can hold within a given session.</div></div>
+  <div class="part"><b>Prompt engineering</b>
+    <div class="mine">How to prompt an AI model, based on context, to receive better results.</div></div>
+  <div class="part"><b>Retrieval (RAG)</b>
+    <div class="mine">Retrieval-Augmented Generation is when the harness fetches relevant information from the outside world and adds it to the context so the model can understand the prompt better.</div></div>
 
   <!-- ============ HARNESS ============ -->
   <h2 class="h"><span class="dot"></span>The Harness / Loop splits into…</h2>
   <p class="lead">The program that wraps the model and loops it. <b>I built one by hand:</b>
   <a href="tiny_agent.py">tiny_agent.py</a>.</p>
-  <div class="part"><b>Think → act → observe loop</b> — the cycle an agent runs.
+  <div class="part"><b>Think → act → observe loop</b>
     <div class="hint">Real example: the <code>while True:</code> loop in my agent.</div>
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Tool-call protocol</b> — how the model "asks" for a tool and gets the result back.
+    <div class="mine">The Think → Act → Observe loop (also known as the ReAct pattern): the model thinks (reasons), acts (asks for a tool), and observes (reads the result), repeating to work through a task autonomously.</div></div>
+  <div class="part"><b>Tool-call protocol</b>
     <div class="hint">Real example: the model returns a <code>tool_use</code>, my code runs it, sends a <code>tool_result</code>.</div>
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Subagents</b> — helpers spun up for sub-tasks.
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Memory &amp; context management</b> — keep / summarize / drop as context fills.
-    <span class="todo">🔲 Your one-liner.</span></div>
+    <div class="mine">The tool-call protocol is the method of the model asking for a tool to be used and the harness actually going and using the tool.</div></div>
+  <div class="part"><b>Subagents</b>
+    <div class="mine">Subagents are separate agents working at the same time to split up a task.</div></div>
+  <div class="part"><b>Memory &amp; context management</b>
+    <div class="mine">Memory &amp; context management is a feature of the harness: it adds context to the model and also gathers/organizes context for the model within the loop.</div></div>
 
   <!-- ============ TOOLS ============ -->
   <h2 class="t"><span class="dot"></span>The Tools &amp; World splits into…</h2>
   <p class="lead">The outside world the harness acts on. <b>I used every part of this in the
   with/without experiment.</b></p>
-  <div class="part"><b>Tool definitions</b> — how a tool is described so the model knows when/how to use it.
+  <div class="part"><b>Tool definitions</b>
     <div class="hint">Real example: the <code>calculate</code> schema in my agent.</div>
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>MCP</b> — a standard plug for connecting external tools to the harness.
+    <div class="mine">Tool definitions are concrete descriptions of tools so that the model can call on the harness to use them.</div></div>
+  <div class="part"><b>MCP</b>
     <div class="hint">Real example: the visualize MCP server that drew my Phase-1 diagram.</div>
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Permissions &amp; safety</b> — what the harness may do without asking.
+    <div class="mine">MCP (Model Context Protocol) is an open-source standard way that the model connects to the tools / outside world.</div></div>
+  <div class="part"><b>Permissions &amp; safety</b>
     <div class="hint">Real example: the allowlist in <code>.claude/settings.json</code> (kitted run).</div>
-    <span class="todo">🔲 Your one-liner.</span></div>
-  <div class="part"><b>Hooks</b> — actions that fire automatically before/after a step.
+    <div class="mine">Permissions &amp; safety are the guardrails that protect the user from the model/agent doing something the user is not comfortable with; they’re built in and the user can change them.</div></div>
+  <div class="part"><b>Hooks</b>
     <div class="hint">Real example: <code>validate.py</code> running after every edit (kitted run).</div>
-    <span class="todo">🔲 Your one-liner.</span></div>
+    <div class="mine">Hooks are automatic actions the harness runs before/after a step — plain, deterministic code, not instructions to the model. (Skills are instructions for the model; hooks are automatic actions for the harness.)</div></div>
 
   <!-- ============ AGENT ============ -->
   <h2>My hand-built agent</h2>
@@ -123,9 +124,9 @@
   <div class="check">
     <h2>Gate checklist (the one rule)</h2>
     <ul>
-      <li>Fill every <span style="color:var(--text)">🔲</span> in <b>your own words</b> — if you can't defend a sentence cold, rewrite it.</li>
-      <li>For the no-AI gate: pick <b>one</b> pillar, break it into its parts aloud, a real example for each. (Tools is your strongest — you used all four.)</li>
-      <li>Record yourself doing it with nothing open.</li>
+      <li>The 16 pillar one-liners are done (in my words). Two blanks left: the <b>agent walkthrough</b> and the <b>with/without findings</b>.</li>
+      <li>For the no-AI gate: pick <b>one</b> pillar, break it into its parts aloud, a real example for each. (Tools is strongest — I used all four.)</li>
+      <li>Record myself doing it with nothing open.</li>
     </ul>
   </div>
 </div>
