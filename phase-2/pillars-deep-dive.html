@@ -107,8 +107,12 @@
   <div class="card">
     <p class="lead">The ★ exercise: <a href="tiny_agent.py">tiny_agent.py</a> — a loop
     around Claude that runs one tool until done.</p>
-    <span class="todo">🔲 Paste your line-by-line walkthrough here, in your own words — especially
-    <b>why the model can't run the calculator itself.</b></span>
+    <div class="mine"><code>tiny_agent.py</code> is a small program that <i>is</i> a minimal agent — a loop
+    that wraps the model (Claude) and one calculator tool. Each time through the loop, the harness sends the
+    whole conversation to the model; if the model asks for the calculator, the harness runs it and feeds the
+    result back. The key moment is when the model <b>asks for a tool</b> (returns a <code>tool_use</code>)
+    instead of giving its final answer (<code>end_turn</code>). The model can't run the calculator itself
+    because it only predicts text — it can't actually <i>do</i> anything — so the harness is what executes the tool.</div>
   </div>
 
   <!-- ============ WITH / WITHOUT ============ -->
@@ -117,14 +121,20 @@
     <p class="lead">Same app built twice —
     <a href="with-without/naked/index.html">naked</a> vs.
     <a href="with-without/kitted/index.html">kitted</a>.</p>
-    <span class="todo">🔲 Your findings: did they feel different or only differ under the hood?
-    Which knob surprised you most? Which one would you keep first, and why?</span>
+    <div class="mine">Trying the two builds, they felt about the same — the task was simple and I wasn't
+    after anything specific, so the customizations didn't have a big effect. (The knobs pay off more as the task
+    gets bigger and more specific.)<br><br>
+    The knob that surprised me most was the hook, because the same check passed the kitted build but failed the
+    naked one, catching a flaw I had noticed when I tried playing around with the "without" version. (When you do
+    the number order thing, it doesn't click on anything.)<br><br>
+    If I kept building this app, the first knob I'd keep is prob CLAUDE.md, because it writes the rules and scoring
+    down once, so everything I build after stays consistent.</div>
   </div>
 
   <div class="check">
     <h2>Gate checklist (the one rule)</h2>
     <ul>
-      <li>The 16 pillar one-liners are done (in my words). Two blanks left: the <b>agent walkthrough</b> and the <b>with/without findings</b>.</li>
+      <li>All written in my own words: 16 pillar one-liners, the agent walkthrough, and the with/without findings. ✓</li>
       <li>For the no-AI gate: pick <b>one</b> pillar, break it into its parts aloud, a real example for each. (Tools is strongest — I used all four.)</li>
       <li>Record myself doing it with nothing open.</li>
     </ul>
