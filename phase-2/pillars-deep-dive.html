@@ -17,6 +17,7 @@
   a{color:var(--accent2)}
   .wrap{max-width:880px;margin:0 auto;padding:0 20px}
   header{border-bottom:1px solid var(--border);padding:34px 0 26px;margin-bottom:24px}
+  .back{display:inline-block;margin-bottom:8px;font-size:14px}
   .kicker{color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
   header h1{font-size:30px;margin:0 0 8px}
   header p{color:var(--muted);font-size:15px;margin:0;max-width:640px}
@@ -29,6 +30,9 @@
   .part b{color:var(--text)}
   .hint{color:var(--muted);font-size:13px;margin-top:4px}
   .mine{color:var(--text);font-size:14px;margin-top:6px}
+  .edit{background:var(--panel2);border-left:3px solid var(--amber,#d29922);border-radius:6px;
+    padding:8px 12px;margin-top:8px;font-size:13px;color:var(--muted)}
+  .edit b{color:#d29922}
   .todo{color:var(--tools);font-size:13px;font-style:italic;display:block;margin-top:8px}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin:14px 0}
   .check{background:var(--panel2);border:1px dashed var(--border);border-radius:10px;padding:16px 18px;margin:30px 0}
@@ -40,35 +44,41 @@
 <body>
 <div class="wrap">
   <header>
+    <a class="back" href="../index.html">← Back to my work</a>
     <div class="kicker">Phase 2 · Inside the pillars</div>
     <h1>The Four Pillars, Cracked Open</h1>
     <p>Phase 1 was the four boxes. Phase 2 splits each box into its real parts — explained
-    in my own words, each with a real example from a tool I actually used.</p>
+    in my own words. Where I had something slightly off, I've kept my original and added the
+    correction as a marked edit.</p>
   </header>
 
   <!-- ============ MODEL ============ -->
   <h2 class="m"><span class="dot"></span>The Model splits into…</h2>
   <p class="lead">The text-predictor itself, in parts.</p>
   <div class="part"><b>Tokens</b>
-    <div class="mine">Tokens are the chunks — often pieces of words — that the model actually reads; text gets broken apart into them (e.g. “unbelievable” → a few tokens).</div></div>
+    <div class="mine">How the model breaks apart context.</div>
+    <div class="edit"><b>✏️ Edit:</b> closer — tokens are the chunks (often pieces of words) the model actually
+    reads; text gets broken apart into them (e.g. “unbelievable” → a few tokens).</div></div>
   <div class="part"><b>Training vs. inference</b>
-    <div class="mine">Training is when the model learns from a large dataset to infer what comes next, then gets validated on new unseen data. Inference is actually using the finished, frozen model to get an answer.</div></div>
+    <div class="mine">Training is when the model is trained on a large data set to learn/infer what comes next, and then the model gets validated with new unseen data.</div>
+    <div class="edit"><b>✏️ Edit:</b> that's the <i>training</i> half — the contrast is <b>inference</b>: actually
+    using the finished, frozen model to get an answer (what happens every time you chat with it).</div></div>
   <div class="part"><b>Temperature &amp; sampling</b>
-    <div class="mine">How probabilistic (random vs. focused) you want the model’s answers to be.</div></div>
+    <div class="mine">How probabilistic you want your model's answers to be.</div></div>
   <div class="part"><b>Open vs. closed models</b>
-    <div class="mine">Open models let you download the architecture and run it yourself; closed models run on separate servers (API-only).</div></div>
+    <div class="mine">Open models allow you to download the architecture while closed models are run on separate servers.</div></div>
 
   <!-- ============ CONTEXT ============ -->
   <h2 class="c"><span class="dot"></span>The Context splits into…</h2>
   <p class="lead">Everything the model can see, in parts.</p>
   <div class="part"><b>Roles</b>
-    <div class="mine">Roles define which context is which and whom it is from (system / user / assistant).</div></div>
+    <div class="mine">Roles define which context is which and whom it is from.</div></div>
   <div class="part"><b>The context window</b>
-    <div class="mine">The context window is how many tokens a model can hold within a given session.</div></div>
+    <div class="mine">Context window is how many tokens a model can hold within a given session.</div></div>
   <div class="part"><b>Prompt engineering</b>
-    <div class="mine">How to prompt an AI model, based on context, to receive better results.</div></div>
+    <div class="mine">How to prompt an AI model based on context to receive better results.</div></div>
   <div class="part"><b>Retrieval (RAG)</b>
-    <div class="mine">Retrieval-Augmented Generation is when the harness fetches relevant information from the outside world and adds it to the context so the model can understand the prompt better.</div></div>
+    <div class="mine">Retrieval-Augmented Generation is when the harness fetches relevent information from the outside world and adds it to the context so that the model can understand the prompt better.</div></div>
 
   <!-- ============ HARNESS ============ -->
   <h2 class="h"><span class="dot"></span>The Harness / Loop splits into…</h2>
@@ -76,14 +86,16 @@
   <a href="tiny_agent.py">tiny_agent.py</a>.</p>
   <div class="part"><b>Think → act → observe loop</b>
     <div class="hint">Real example: the <code>while True:</code> loop in my agent.</div>
-    <div class="mine">The Think → Act → Observe loop (also known as the ReAct pattern): the model thinks (reasons), acts (asks for a tool), and observes (reads the result), repeating to work through a task autonomously.</div></div>
+    <div class="mine">The Think → Act → Observe loop, also known as the ReAct pattern, is a method to autonomously plan and replicate critical thinking.</div>
+    <div class="edit"><b>✏️ Edit:</b> more precisely, the loop is the model <b>thinks</b> (reasons), <b>acts</b>
+    (asks for a tool), and <b>observes</b> (reads the result), repeating to work through a task.</div></div>
   <div class="part"><b>Tool-call protocol</b>
     <div class="hint">Real example: the model returns a <code>tool_use</code>, my code runs it, sends a <code>tool_result</code>.</div>
     <div class="mine">The tool-call protocol is the method of the model asking for a tool to be used and the harness actually going and using the tool.</div></div>
   <div class="part"><b>Subagents</b>
     <div class="mine">Subagents are separate agents working at the same time to split up a task.</div></div>
   <div class="part"><b>Memory &amp; context management</b>
-    <div class="mine">Memory &amp; context management is a feature of the harness: it adds context to the model and also gathers/organizes context for the model within the loop.</div></div>
+    <div class="mine">Memory and context management is a feature of the harness in that it adds context to the model and also gathers/organizes context for the model within the loop.</div></div>
 
   <!-- ============ TOOLS ============ -->
   <h2 class="t"><span class="dot"></span>The Tools &amp; World splits into…</h2>
@@ -97,10 +109,13 @@
     <div class="mine">MCP (Model Context Protocol) is an open-source standard way that the model connects to the tools / outside world.</div></div>
   <div class="part"><b>Permissions &amp; safety</b>
     <div class="hint">Real example: the allowlist in <code>.claude/settings.json</code> (kitted run).</div>
-    <div class="mine">Permissions &amp; safety are the guardrails that protect the user from the model/agent doing something the user is not comfortable with; they’re built in and the user can change them.</div></div>
+    <div class="mine">Permissions and safety are the guard rails that protect the user from the model/agent hallucinating or doing something the user is not comfortable with, and these are built in and the user can change them.</div></div>
   <div class="part"><b>Hooks</b>
     <div class="hint">Real example: <code>validate.py</code> running after every edit (kitted run).</div>
-    <div class="mine">Hooks are automatic actions the harness runs before/after a step — plain, deterministic code, not instructions to the model. (Skills are instructions for the model; hooks are automatic actions for the harness.)</div></div>
+    <div class="mine">Hooks are kind of like built-in skills that Claude Code has that give a standard practice of what to tell the agent/model to do before/after every task.</div>
+    <div class="edit"><b>✏️ Edit:</b> not quite — a hook isn't a skill and doesn't instruct the model. It's an
+    <b>automatic action the harness runs</b> before/after a step (deterministic code, e.g. <code>validate.py</code>
+    firing after every edit). Skills = instructions for the model; hooks = automatic actions for the harness.</div></div>
 
   <!-- ============ AGENT ============ -->
   <h2>My hand-built agent</h2>
@@ -134,9 +149,8 @@
   <div class="check">
     <h2>Gate checklist (the one rule)</h2>
     <ul>
-      <li>All written in my own words: 16 pillar one-liners, the agent walkthrough, and the with/without findings. ✓</li>
+      <li>All written in my own words: 16 pillar one-liners (4 with corrections marked), the agent walkthrough, and the with/without findings. ✓</li>
       <li>For the no-AI gate: pick <b>one</b> pillar, break it into its parts aloud, a real example for each. (Tools is strongest — I used all four.)</li>
-      <li>Record myself doing it with nothing open.</li>
     </ul>
   </div>
 </div>

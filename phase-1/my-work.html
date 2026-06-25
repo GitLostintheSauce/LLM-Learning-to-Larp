@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 1 — My Notes &amp; Hand-Drawn Diagrams</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;padding-bottom:70px}
+  a{color:var(--accent2)}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--border);padding:30px 0 22px;margin-bottom:22px}
+  .kicker{color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  h1{font-size:28px;margin:0 0 8px}
+  header p{color:var(--muted);font-size:14px;margin:0}
+  h2{font-size:20px;margin:30px 0 8px;border-bottom:1px solid var(--border);padding-bottom:8px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin:12px 0}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;font-size:15px}
+  ol{padding-left:20px} ol li{margin-bottom:8px}
+  figure{margin:16px 0 0;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+  figure img{width:100%;border-radius:8px;display:block}
+  figcaption{color:var(--muted);font-size:13px;margin-top:10px;text-align:center}
+  .back{display:inline-block;margin-bottom:8px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="../index.html">← Back to my work</a>
+    <div class="kicker">Phase 1 · raw work</div>
+    <h1>My Notes &amp; Hand-Drawn Diagrams</h1>
+    <p>How I worked out the four pillars and the request loop — on paper first, transcribed here,
+    in my own words.</p>
+  </header>
+
+  <h2>The four pillars (my definitions)</h2>
+  <div class="card"><h3>The Model</h3><p>Takes in text/commands and predicts what happens next. It decides
+    what to do and asks the harness to do the things/tasks. It deciphers what the harness did and interprets
+    what should be done next. A model is static and only answers from its current context.</p></div>
+  <div class="card"><h3>The Context</h3><p>The memory of the model at that time. The context window consists
+    of a past number of tokens.</p></div>
+  <div class="card"><h3>The Harness (loop)</h3><p>The bridge between the Model and the tools (like a cable/cord).
+    It turns the model's commands into actionable code that uses tools to actually do the stuff you want. It sends
+    results back to the model in order to check them, and loops until things are correct.</p></div>
+  <div class="card"><h3>The Tools / Outside World</h3><p>Tools are digital interfaces that the AI can call to
+    perform tasks (e.g. API calls). The outside world is everything beyond the model's current context.</p></div>
+
+  <h2>The full flow (typing a request → a file gets edited)</h2>
+  <div class="card">
+    <ol>
+      <li>A human gives a text request (e.g. "create a file called hello.txt with 1 line in it").</li>
+      <li>The harness assembles the context.</li>
+      <li>The harness sends the context to a model.</li>
+      <li>The model reads the context and decides which tools to ask the harness to use.</li>
+      <li>The harness runs the tool, interacting with the outside world.</li>
+      <li>The tool reports back ("file created successfully"); the harness takes the result and adds it to the context.</li>
+      <li>The model reads the updated context and decides: if the goal is met, it reports back to the user; if not,
+      it runs again with new instructions — looping with commands like <code>cat</code> until done.</li>
+    </ol>
+  </div>
+
+  <h2>The hand-drawn diagrams</h2>
+  <figure>
+    <img src="diagram.jpg" alt="Hand-drawn diagram of the four pillars connected by the request loop">
+    <figcaption>The 4-box flow, draft 5 — the loop closed (model checks context → tells harness to execute →
+    harness uses tools → results back into context → answers).</figcaption>
+  </figure>
+  <figure>
+    <img src="four-pillars.jpg" alt="Hand-written definitions of the four pillars">
+    <figcaption>My written-out definitions of the four pillars.</figcaption>
+  </figure>
+  <figure>
+    <img src="flow-narration.jpg" alt="Hand-written step-by-step narration of the full flow">
+    <figcaption>The full step-by-step flow, narrated by hand.</figcaption>
+  </figure>
+</div>
+</body>
+</html>
