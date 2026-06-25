@@ -3,521 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LLM & Agent Harness — Phase Map</title>
+<title>LLM Learning to Larp — My Work</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
     --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
-    --green:#3fb950; --amber:#d29922; --gate:#f78166;
-    --p1:#4dd0e1; --p2:#7c5cff; --p3:#ff8fab;
+    --p1:#4dd0e1; --p2:#7c5cff; --p3:#ff8fab; --green:#3fb950;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
+  body{margin:0;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.55; padding-bottom:80px;
-  }
-  a{color:var(--accent2)}
-  .wrap{max-width:920px; margin:0 auto; padding:0 20px}
+    line-height:1.6;padding-bottom:70px}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
 
-  /* Sticky header + overall progress */
-  header{
-    position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
-    background:rgba(13,17,23,.82); border-bottom:1px solid var(--border);
-    padding:16px 0 14px;
-  }
-  header h1{font-size:18px; margin:0 0 4px; letter-spacing:.2px}
-  header .sub{color:var(--muted); font-size:13px; margin-bottom:12px}
-  .overall-row{display:flex; align-items:center; gap:14px}
-  .bar{flex:1; height:12px; background:var(--panel2); border-radius:999px; overflow:hidden; border:1px solid var(--border)}
-  .bar > span{display:block; height:100%; width:0;
-    background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3));
-    border-radius:999px; transition:width .35s ease}
-  .pct{font-variant-numeric:tabular-nums; font-weight:700; font-size:15px; min-width:46px; text-align:right}
-  .count{color:var(--muted); font-size:12px; min-width:74px}
+  header{text-align:center;padding:60px 0 30px}
+  header .eyebrow{color:var(--accent);font-size:13px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  header h1{font-size:40px;margin:0 0 14px;letter-spacing:.3px;line-height:1.1}
+  header p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
+  .status{display:inline-block;margin-top:20px;background:rgba(63,185,80,.12);border:1px solid #3fb95055;
+    color:var(--green);border-radius:999px;padding:6px 16px;font-size:13px}
 
-  /* Intro */
-  .intro{margin:26px 0 8px}
-  .intro h2{font-size:15px; margin:0 0 8px; color:var(--text)}
-  .intro p{color:var(--muted); font-size:13.5px; margin:0 0 10px}
-  details.rules{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:6px 16px; margin:14px 0}
-  details.rules summary{cursor:pointer; font-weight:600; padding:8px 0; color:var(--text)}
-  details.rules ul{margin:4px 0 12px; padding-left:20px; color:var(--muted); font-size:13.5px}
-  details.rules li{margin:6px 0}
+  .phases{display:flex;flex-direction:column;gap:18px;margin:36px 0}
+  .phase{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;
+    border-left:5px solid var(--accent);transition:transform .15s ease,border-color .15s ease}
+  .phase:hover{transform:translateY(-2px)}
+  .phase.p1{border-left-color:var(--p1)} .phase.p2{border-left-color:var(--p2)} .phase.p3{border-left-color:var(--p3)}
+  .phase .tag{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .phase h2{font-size:22px;margin:0 0 10px}
+  .phase p{color:var(--text);font-size:15px;margin:0 0 16px}
+  .links{display:flex;flex-wrap:wrap;gap:8px}
+  .links a{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:7px 13px;
+    font-size:13.5px;color:var(--text)}
+  .links a:hover{border-color:var(--accent2);text-decoration:none}
+  .links a .big{color:var(--accent2);font-weight:600}
 
-  /* Phase cards */
-  .phase{background:var(--panel); border:1px solid var(--border); border-radius:14px; margin:22px 0; overflow:hidden}
-  .phase-head{padding:18px 20px 14px; border-bottom:1px solid var(--border)}
-  .phase-tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-    padding:3px 9px; border-radius:999px; margin-bottom:8px}
-  .p1 .phase-tag{background:rgba(77,208,225,.14); color:var(--p1)}
-  .p2 .phase-tag{background:rgba(124,92,255,.16); color:var(--p2)}
-  .p3 .phase-tag{background:rgba(255,143,171,.14); color:var(--p3)}
-  .phase-head h3{margin:0 0 4px; font-size:19px}
-  .phase-head .goal{color:var(--muted); font-size:13.5px; margin:6px 0 12px}
-  .phase-bar-row{display:flex; align-items:center; gap:12px}
-  .phase-bar{flex:1; height:8px; background:var(--panel2); border-radius:999px; overflow:hidden; border:1px solid var(--border)}
-  .phase-bar > span{display:block; height:100%; width:0; border-radius:999px; transition:width .35s ease}
-  .p1 .phase-bar > span{background:var(--p1)}
-  .p2 .phase-bar > span{background:var(--p2)}
-  .p3 .phase-bar > span{background:var(--p3)}
-  .phase-pct{font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:84px; text-align:right}
-
-  .group{padding:8px 20px 18px}
-  .group h4{font-size:12px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted);
-    margin:18px 0 8px; font-weight:700; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
-  .group h4 .hint{text-transform:none; letter-spacing:0; font-weight:400; color:#6e7681; font-size:12px}
-  .group h4 .est{margin-left:auto; text-transform:none; letter-spacing:0; font-weight:600; font-size:11px;
-    color:var(--muted); background:var(--panel2); border:1px solid var(--border); border-radius:999px;
-    padding:2px 9px; white-space:nowrap}
-  .glabel .est{margin-left:auto; font-weight:600; font-size:11px; color:var(--gate);
-    background:rgba(247,129,102,.1); border:1px solid rgba(247,129,102,.3); border-radius:999px;
-    padding:2px 9px; text-transform:none; letter-spacing:0}
-
-  /* Checklist items */
-  label.item{display:flex; gap:12px; align-items:flex-start; padding:9px 12px; border-radius:9px;
-    cursor:pointer; transition:background .15s; border:1px solid transparent}
-  label.item:hover{background:var(--panel2)}
-  label.item input{appearance:none; -webkit-appearance:none; margin:2px 0 0; flex:none;
-    width:19px; height:19px; border:2px solid var(--border); border-radius:6px; cursor:pointer;
-    position:relative; transition:.15s; background:var(--bg)}
-  label.item input:checked{background:var(--green); border-color:var(--green)}
-  label.item input:checked::after{content:""; position:absolute; left:5px; top:1px; width:5px; height:10px;
-    border:solid #0d1117; border-width:0 2.5px 2.5px 0; transform:rotate(45deg)}
-  label.item .txt{font-size:14px}
-  label.item input:checked ~ .txt{color:var(--muted); text-decoration:line-through; text-decoration-color:#586069}
-  .item .txt b{color:var(--text); font-weight:600}
-  .item.star .txt::before{content:"★ "; color:var(--amber)}
-
-  /* "unpack this" expandable explainers for dense lines */
-  .task{margin-bottom:2px}
-  details.explain{margin:-4px 0 8px 43px}
-  details.explain > summary{list-style:none; cursor:pointer; display:inline-flex; align-items:center; gap:5px;
-    font-size:12px; color:var(--accent2); padding:3px 0; user-select:none}
-  details.explain > summary::-webkit-details-marker{display:none}
-  details.explain > summary::before{content:"＋"; font-size:13px; line-height:1}
-  details.explain[open] > summary::before{content:"−"}
-  details.explain[open] > summary{color:var(--muted)}
-  .explain-body{font-size:13px; color:var(--muted); background:var(--panel2); border:1px solid var(--border);
-    border-left:3px solid var(--accent2); border-radius:8px; padding:11px 14px; margin:4px 0 2px; line-height:1.6}
-  .explain-body p{margin:0 0 9px}
-  .explain-body p:last-child{margin-bottom:0}
-  .explain-body b{color:var(--text)}
-  .explain-body a{color:var(--accent2)}
-
-  /* clickable glossary terms */
-  .term{font:inherit; color:inherit; background:none; border:none; padding:0; cursor:help;
-    border-bottom:1.5px dotted var(--accent2)}
-  .term:hover{color:var(--accent2)}
-  .term-pop{position:absolute; z-index:200; max-width:300px; background:#0b1220; color:var(--text);
-    border:1px solid var(--accent2); border-radius:8px; padding:9px 12px; font-size:12.5px; line-height:1.5;
-    box-shadow:0 8px 24px rgba(0,0,0,.55)}
-
-  /* Gate item */
-  .gate{margin:16px 12px 4px; background:rgba(247,129,102,.07); border:1px solid rgba(247,129,102,.3);
-    border-radius:10px; padding:4px 6px}
-  .gate .glabel{display:flex; align-items:center; gap:8px; padding:8px 12px 2px; font-size:11px;
-    font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--gate)}
-  .gate label.item:hover{background:rgba(247,129,102,.08)}
-
-  footer{position:fixed; bottom:0; left:0; right:0; background:rgba(13,17,23,.92); backdrop-filter:blur(8px);
-    border-top:1px solid var(--border); padding:12px 0}
-  footer .wrap{display:flex; align-items:center; justify-content:space-between; gap:12px}
-  .save-note{color:var(--muted); font-size:12px}
-  button.reset{background:transparent; color:var(--muted); border:1px solid var(--border); padding:7px 14px;
-    border-radius:8px; cursor:pointer; font-size:13px}
-  button.reset:hover{color:var(--gate); border-color:var(--gate)}
-  .celebrate{color:var(--green); font-weight:700; font-size:13px; display:none}
+  .foot{border-top:1px solid var(--border);margin-top:40px;padding-top:24px;text-align:center;color:var(--muted);font-size:14px}
+  .foot a{margin:0 10px}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="wrap">
-    <h1>🧭 Understanding LLMs &amp; Agent Harnesses — Phase Map</h1>
-    <div class="sub">Top-down, three phases. Check things off as you truly understand them — not when an AI explained them <em>to</em> you. <span style="color:#6e7681">Rough total ≈ 6–10 weeks if you're on this most of the day. The estimates are guides, not a stopwatch — the gates matter more than the calendar.</span></div>
-    <div class="overall-row">
-      <div class="count" id="count">0 / 0</div>
-      <div class="bar"><span id="overallBar"></span></div>
-      <div class="pct" id="overallPct">0%</div>
-    </div>
-  </div>
-</header>
-
 <div class="wrap">
 
-  <div class="intro" style="border:1px solid #7c5cff55;background:rgba(124,92,255,.08)">
-    <h2>📂 My work so far</h2>
-    <p style="margin:0 0 10px">The pages I've built as I go — every word mine, defendable cold:</p>
-    <p style="margin:0;line-height:2.1">
-      ✅ <b>Phase 1 — The Big Picture:</b> <a href="big-picture.html">big-picture.html</a><br>
-      ✅ <b>Phase 2 — Pillars Deep-Dive:</b> <a href="phase-2/pillars-deep-dive.html">phase-2/pillars-deep-dive.html</a><br>
-      &nbsp;&nbsp;&nbsp;↳ my hand-built agent: <a href="phase-2/tiny_agent.py">tiny_agent.py</a>
-       · the with/without experiment: <a href="phase-2/with-without/naked/index.html">naked</a> vs <a href="phase-2/with-without/kitted/index.html">kitted</a><br>
-      ✅ <b>Phase 3 — Go Deep &amp; Custom:</b> <a href="phase-3/deep-dive.html">phase-3/deep-dive.html</a><br>
-      &nbsp;&nbsp;&nbsp;↳ the swap (local model): <a href="phase-3/tiny_agent_local.py">tiny_agent_local.py</a>
-       · the model bake-off: <a href="phase-3/bakeoff.py">bakeoff.py</a>
-    </p>
+  <header>
+    <div class="eyebrow">Learning in public</div>
+    <h1>LLM Learning to Larp</h1>
+    <p>Me teaching myself how large language models and AI agents actually work —
+    from the four big pieces, down to running my own model and building my own agent.
+    Every explanation here is mine, and I can defend each one cold.</p>
+    <div class="status">✅ Phases 1 – 3 complete</div>
+  </header>
+
+  <div class="phases">
+
+    <div class="phase p1">
+      <div class="tag">Phase 1 · The Big Map</div>
+      <h2>The four pillars &amp; the loop</h2>
+      <p>The high-altitude picture: what happens between typing a request and an AI editing a file —
+      the Model, the Context, the Harness/Loop, and the Tools, and how they hand off in a loop.</p>
+      <div class="links">
+        <a href="big-picture.html"><span class="big">→</span> The Big Picture</a>
+        <a href="phase-1/notes.md">My notes &amp; hand-drawn diagrams</a>
+      </div>
+    </div>
+
+    <div class="phase p2">
+      <div class="tag">Phase 2 · The Parts &amp; The Tools</div>
+      <h2>Cracking each pillar open — and building an agent</h2>
+      <p>I split every pillar into its real parts, then <b>built a tiny AI agent by hand</b> and ran a
+      <b>with/without experiment</b> (same app twice — bare vs. fully configured) to feel what each
+      "knob" actually buys you.</p>
+      <div class="links">
+        <a href="phase-2/pillars-deep-dive.html"><span class="big">→</span> Pillars Deep-Dive</a>
+        <a href="phase-2/tiny_agent.py">My hand-built agent</a>
+        <a href="phase-2/with-without/naked/index.html">Naked build</a>
+        <a href="phase-2/with-without/kitted/index.html">Kitted build</a>
+      </div>
+    </div>
+
+    <div class="phase p3">
+      <div class="tag">Phase 3 · Go Deep &amp; Go Custom</div>
+      <h2>Running my own model &amp; the swap</h2>
+      <p>I ran real AI models on my own laptop (free, offline, private), then did <b>“the swap”</b> —
+      pointing my agent at a local model instead of Claude — proving the harness and the model are
+      separate, swappable parts. Plus a two-model bake-off and the concepts under the hood.</p>
+      <div class="links">
+        <a href="phase-3/deep-dive.html"><span class="big">→</span> Go Deep &amp; Custom</a>
+        <a href="phase-3/tiny_agent_local.py">The swap (local agent)</a>
+        <a href="phase-3/bakeoff.py">Model bake-off</a>
+      </div>
+    </div>
+
   </div>
 
-  <div class="intro">
-    <h2>The one rule</h2>
-    <p>You learn by <b>interrogating</b> Claude — not by collecting answers. A box gets checked only when you can explain it <em>in your own words, with no AI open</em>. The website you build at the end is the proof, not the goal.</p>
+  <div class="foot">
+    <a href="guide.html">📘 The curriculum I'm following</a> ·
+    <a href="https://github.com/GitLostintheSauce/LLM-Learning-to-Larp">💻 Source on GitHub</a>
   </div>
-
-  <details class="rules">
-    <summary>How we keep it honest (open me)</summary>
-    <ul>
-      <li><b>Teach-back, every concept.</b> Explain it in your own words before moving on. Can't explain it simply → you don't get it yet.</li>
-      <li><b>Learning journal.</b> Each session: what I tried to learn, what surprised me, what I had <em>wrong</em> before, one question I still can't answer.</li>
-      <li><b>Draw it yourself.</b> Hand-draw each phase's diagram, then ask the AI to critique <em>your</em> drawing.</li>
-      <li><b>Predict before you run.</b> Write what you think will happen, then run it. The gap is the lesson.</li>
-      <li><b>No-AI checkpoints.</b> Each phase ends with a gate you pass with nothing open.</li>
-      <li><b>Defend every sentence on your website.</b> If you can't explain it cold, it shouldn't be there.</li>
-    </ul>
-    <summary style="border-top:1px solid var(--border)">How to interrogate an LLM so you actually learn</summary>
-    <ul>
-      <li>"Explain it like I've never heard of it, then add one layer of nuance at a time."</li>
-      <li>"Give me an analogy — then tell me where it breaks down."</li>
-      <li>"What's the layer <em>below</em> this? What's the layer <em>above</em>?"</li>
-      <li>"What am I not asking that I should be asking?"</li>
-      <li>"Quiz me. One question at a time, wait for my answer, then tell me if I'm right and why."</li>
-      <li>"I think it works like X — where am I wrong?"</li>
-      <li>Be skeptical. LLMs make things up confidently. Verify what matters.</li>
-    </ul>
-  </details>
-
-  <!-- ===================== PHASE 1 ===================== -->
-  <section class="phase p1" data-phase="1" id="phase1">
-    <div class="phase-head">
-      <span class="phase-tag">Phase 1 · ~1 week</span>
-      <h3>The Big Map — the 4 pillars</h3>
-      <div class="goal">Explain end-to-end, in your own words, what happens between "you type a request into Claude Code" and "it edits a file." Four big boxes, high altitude, no internals yet.</div>
-      <div class="phase-bar-row">
-        <div class="phase-bar"><span></span></div>
-        <div class="phase-pct">0 / 0</div>
-      </div>
-    </div>
-
-    <div class="group">
-      <h4>The four pillars <span class="hint">— place each one on the map</span> <span class="est">~2–4 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>The Model</b> — at its core, a thing that takes in text and predicts what comes next. No memory, runs nothing on its own.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>The Context</b> — everything the model can "see" right now. No memory between calls; what it knows = what you send. Garbage in, garbage out.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>The Harness / Loop</b> — the program that wraps the model and loops it so it can <em>do</em> things. Claude Code is a harness.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>The Tools &amp; Outside World</b> — files, commands, web, other programs. The model <em>asks</em>; the harness <em>does</em> and reports back.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">I can describe the full flow: <b>goal → assemble context → model replies → run tool → result back → loop → done</b>.</span></label>
-    </div>
-
-    <div class="group">
-      <h4>Exercises <span class="hint">— do at least two</span> <span class="est">~1–2 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Narrated task.</b> Have Claude Code do something tiny and narrate it; map each step to a pillar.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>The diagram.</b> Hand-draw the 4-box flow, have Claude critique it, redraw until clean.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Analogy hunt.</b> 3 analogies each for "model" and "harness"; pick favorites, note where they break.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Dumb question list.</b> Write &amp; answer 10 genuinely confusing questions.</span></label>
-    </div>
-
-    <div class="gate">
-      <div class="glabel">✅ Gate to pass <span class="est">~½ day</span></div>
-      <label class="item"><input type="checkbox"><span class="txt">With <b>no AI open</b>, explain the full journey aloud (record it), naming all four pillars and their hand-offs.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">Website: add the <b>"big picture"</b> section — every sentence yours and defensible.</span></label>
-    </div>
-  </section>
-
-  <!-- ===================== PHASE 2 ===================== -->
-  <section class="phase p2" data-phase="2">
-    <div class="phase-head">
-      <span class="phase-tag">Phase 2 · ~2.5–4 weeks</span>
-      <h3>Split the pillars + master your tools</h3>
-      <div class="goal">Break each pillar into its real parts, and push the tools you already have to their limits. The best way to understand a harness is to max one out.</div>
-      <div class="phase-bar-row">
-        <div class="phase-bar"><span></span></div>
-        <div class="phase-pct">0 / 0</div>
-      </div>
-    </div>
-
-    <div class="group">
-      <h4>The Model splits into… <span class="est">~2–3 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b><button type="button" class="term" data-def="A chunk of text (often a piece of a word) — the unit a model actually reads and writes. Length limits and cost are both counted in tokens.">Tokens</button></b> — models see chunks, not words. Why it matters (cost, limits, weirdness).</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Training vs. <button type="button" class="term" data-def="Using a trained model to get an answer — what happens every time you chat with it (as opposed to training, which created it).">inference</button></b> — trained once (expensive); using it = frozen prediction.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Pretraining vs. post-training</b> — how a text-predictor becomes a helpful assistant.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b><button type="button" class="term" data-def="A dial for randomness: low = focused and repeatable, high = more varied and surprising.">Temperature</button> &amp; sampling</b> — why the same prompt gives different answers.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Open vs. closed models</b> — download-and-run vs. API-only. (Sets up Phase 3.)</span></label>
-    </div>
-    <div class="group">
-      <h4>The Context splits into… <span class="est">~2–3 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Roles</b> — system / user / assistant messages and what each is for.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>The <button type="button" class="term" data-def="The maximum amount of text a model can see at once. Go past it and earlier parts get dropped — which is why long chats start to forget.">context window</button></b> — max size, what happens at the limit, why long chats "forget."</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Prompt engineering</b> — how phrasing/examples/structure change output (run experiments).</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Retrieval (<button type="button" class="term" data-def="Retrieval-Augmented Generation: fetching relevant info and pasting it into the model's context so it can use facts it was never trained on.">RAG</button>)</b>, high level — stuffing relevant info into context on demand.</span></label>
-    </div>
-    <div class="group">
-      <h4>The Harness / Loop splits into… <span class="est">~2–3 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Think → act → observe loop</b> — the actual cycle an agent runs.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Tool-call protocol</b> — how the model "asks" for a tool and gets the result back.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b><button type="button" class="term" data-def="A helper agent the main one spins up to handle a sub-task on its own, then report back.">Subagents</button></b> — spinning up helpers for sub-tasks.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Memory &amp; context management</b> — keep / summarize / drop as context fills.</span></label>
-    </div>
-    <div class="group">
-      <h4>The Tools &amp; World splits into… <span class="est">~1–2 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Tool definitions</b> — how a tool is described so the model knows when/how to use it.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b><button type="button" class="term" data-def="Model Context Protocol — a common standard for plugging external tools and data sources into an AI harness.">MCP</button></b> — a standard way to plug external tools/services into a harness.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Permissions &amp; safety</b> — why the harness asks before risky actions.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b><button type="button" class="term" data-def="A rule that automatically runs something before or after a step — e.g. 'format the file after every edit.'">Hooks</button></b> — making things happen automatically before/after steps.</span></label>
-    </div>
-
-    <div class="group">
-      <h4>Master the tools you have <span class="hint">— each knob = a concept above, made real</span> <span class="est">~4–6 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>CLAUDE.md</b> — persistent project context.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Settings &amp; permissions</b> — what the harness can do without asking.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Skills</b> — packaged capabilities/instructions.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Slash commands</b> — reusable prompts/workflows.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Subagents</b> — delegating to specialized helpers.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>MCP servers</b> — connecting external tools.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Hooks</b> — automatic actions on events.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Statusline</b> — customizing what you see.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Goal / plan modes</b> — how the harness changes behavior.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Tool category tour</b> — feel the differences: ChatGPT, Claude chat, Claude Code, Codex, Cursor. What's model vs. harness?</span></label>
-    </div>
-
-    <div class="group">
-      <h4>Exercises <span class="hint">— do the ★ one; pick others freely</span> <span class="est">~3–5 days</span></h4>
-      <div class="task">
-        <label class="item star"><input type="checkbox"><span class="txt"><b>Build the simplest possible "agent" — by hand.</b> Write a tiny program (~50 lines, with Claude Code helping you) that takes an <em>existing</em> model like Claude and wraps a loop around it: it sends your request to the model, and when the model asks to use one simple tool (say, a calculator), your program runs that tool and feeds the answer back — repeating until the task is done. Then <b>understand every line</b> and teach it back with no AI open.</span></label>
-        <details class="explain">
-          <summary>what does this actually mean? (open if that felt dense)</summary>
-          <div class="explain-body">
-            <p>You are <em>not</em> building or training a model — Claude already exists; you're just using it. Your program runs a loop: send the conversation to the model → if it replies <em>"use the calculator,"</em> your code runs it and sends the answer back → repeat until done.</p>
-            <p>That loop is all a <b>"harness"</b> like Claude Code really is, minus the polish — building the bare version is what makes it click. Let Claude Code help you write it; the only rule is that you can explain every line. ↳ It's really just you building <a href="#phase1">Phase 1's pillars 3 &amp; 4</a> by hand.</p>
-          </div>
-        </details>
-      </div>
-      <div class="task">
-        <label class="item"><input type="checkbox"><span class="txt"><b>With/without experiment.</b> Build the same small app twice — "naked," then fully kitted (CLAUDE.md, a skill, permissions, a hook). Write up what you felt and saw.</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>Build any tiny app with Claude Code once with zero setup, then again after adding the config files and tools from the list above. Comparing the two runs shows you, concretely, what each "knob" actually buys you.</p></div>
-        </details>
-      </div>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Make your own knob.</b> Create one custom skill, slash command, or statusline; explain which pillar it touches.</span></label>
-      <div class="task">
-        <label class="item"><input type="checkbox"><span class="txt"><b>Break the context window</b> on purpose; explain why the model starts forgetting.</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>Have one very long conversation until the model starts forgetting earlier details or contradicting itself. You're watching its context window fill up — proof that it only "knows" what currently fits in view.</p></div>
-        </details>
-      </div>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Prompt experiments.</b> One task, five phrasings, record how output changes, draw a conclusion.</span></label>
-    </div>
-
-    <div class="gate">
-      <div class="glabel">✅ Gate to pass <span class="est">~½ day</span></div>
-      <label class="item"><input type="checkbox"><span class="txt">No AI open: take any pillar, break it into parts aloud, with a real example of each from a tool you used.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">Website: a section per pillar, your agent + line-by-line walkthrough, and your with/without findings.</span></label>
-    </div>
-  </section>
-
-  <!-- ===================== PHASE 3 ===================== -->
-  <section class="phase p3" data-phase="3">
-    <div class="phase-head">
-      <span class="phase-tag">Phase 3 · ~3–4 weeks · cloud unlocked</span>
-      <h3>Go deep &amp; go custom</h3>
-      <div class="goal">One more layer under the hood — then prove it by running your own model and your own harness. Cloud resources come in here (everything before this is laptop + Claude Code).</div>
-      <div class="phase-bar-row">
-        <div class="phase-bar"><span></span></div>
-        <div class="phase-pct">0 / 0</div>
-      </div>
-    </div>
-
-    <div class="group">
-      <h4>A peek under the hood <span class="hint">— the gist, not the math</span> <span class="est">~3–5 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>What's inside the model</b> — <button type="button" class="term" data-def="The design inside modern models that lets them weigh which earlier words matter most when predicting the next one.">attention/transformers</button> and <button type="button" class="term" data-def="Turning text into a list of numbers that captures its meaning, so software can compare and search by meaning.">embeddings</button> at a concept level.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Why context costs money/time</b> — the <button type="button" class="term" data-def="A memory trick that saves the model's work on earlier tokens so it isn't redone — part of why longer contexts cost more and run slower.">KV cache</button> idea; longer context = more compute.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>How a model runs</b> — <button type="button" class="term" data-def="The software that actually runs a model on your hardware — e.g. Ollama, llama.cpp, or vLLM.">inference engines</button> (Ollama, llama.cpp, vLLM), GPU/VRAM, <button type="button" class="term" data-def="Shrinking a model by storing its numbers at lower precision, so it runs on smaller/cheaper hardware — at some cost to quality.">quantization</button> &amp; its tradeoff.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Eval, cost, latency, observability</b> — how you'd even know a model/agent is "good."</span></label>
-    </div>
-
-    <div class="group">
-      <h4>Run your own open-source model <span class="est">~3–5 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Pick a model</b> (Llama / Mistral / Qwen family — ask Claude what fits your hardware).</span></label>
-      <div class="task">
-        <label class="item"><input type="checkbox"><span class="txt"><b>Run it locally</b> with Ollama or LM Studio; chat with it; compare to the big hosted models.</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>"Locally" means downloading the model's file onto your own computer and using a free app (Ollama or LM Studio) to chat with it — no internet or API needed. It'll feel weaker than Claude; noticing exactly how and why is the point.</p></div>
-        </details>
-      </div>
-      <div class="task">
-        <label class="item star"><input type="checkbox"><span class="txt"><b>The swap.</b> Point your Phase-2 agent at the local model instead of the API. Feel that harness and model are separate, swappable things.</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>Earlier your homemade agent called Claude over the internet. Change just the part that picks the model so it talks to the model running on your own computer instead — everything else stays the same. That only one piece changes is the whole lesson: the loop (harness) and the brain (model) are separate, swappable parts.</p></div>
-        </details>
-      </div>
-      <div class="task">
-        <label class="item"><input type="checkbox"><span class="txt"><b>(Stretch)</b> Light fine-tune / <button type="button" class="term" data-def="Low-Rank Adaptation — a cheap, lightweight way to fine-tune by training only a small add-on instead of the whole model.">LoRA</button> on a tiny dataset, or heavy prompt+settings tuning — and <em>measure</em> if it got better. Cloud GPUs OK here.</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>Fine-tuning means showing an existing model a small set of your own examples so it leans toward the behavior you want — not building a new model. It's optional and curiosity-driven; the real skill is <em>measuring</em> whether it actually improved rather than assuming it did.</p></div>
-        </details>
-      </div>
-    </div>
-
-    <div class="group">
-      <h4>Stand up a real agent harness <span class="est">~4–7 days</span></h4>
-      <div class="task">
-        <label class="item"><input type="checkbox"><span class="txt"><b>Run an open-source harness</b> (same category as Claude Code — e.g. OpenClaw or another open coding agent).</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>Claude Code is a harness, but its inner recipe is private. An open-source harness is the same kind of tool with its recipe public — so you can read it, run it, and change it, and finally see in full detail how a real harness works.</p></div>
-        </details>
-      </div>
-      <div class="task">
-        <label class="item"><input type="checkbox"><span class="txt"><b>Configure it</b>; point it at a hosted model, then at <em>your own</em> model.</span></label>
-        <details class="explain"><summary>what does this mean?</summary>
-          <div class="explain-body"><p>First run the open harness on a big model over the internet, so it works well and you learn its settings. Then switch it to the model on your own machine from the step above — the same swap idea as your homemade agent, now on a real tool.</p></div>
-        </details>
-      </div>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Run it in the cloud</b> so it's not tied to your laptop.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Compare to Claude Code</b> — what does the polished tool do that the raw one doesn't, and why?</span></label>
-    </div>
-
-    <div class="group">
-      <h4>Exercises <span class="hint">— pick by what you want to go deep on</span> <span class="est">~2–3 days</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Local model bake-off</b> — two models, same prompts, write up which wins and guess why; check guesses with Claude.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Document the swap</b> — what changed, what didn't, what that proves about the architecture.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Cloud deploy</b> — get model/harness running in the cloud; write up what each piece of infra is for.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Honest comparison</b> — your setup vs. Claude Code, mapped to Phase-2 features.</span></label>
-    </div>
-
-    <div class="gate">
-      <div class="glabel">✅ Final gate <span class="est">~1–2 days</span></div>
-      <label class="item"><input type="checkbox"><span class="txt">No AI open: give a ~10-min talk walking the whole stack top→bottom (model → context → harness/loop → tools + under-the-hood), using your own running setup as the live example.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">Website: deep-dive sections, your custom setup, the honest comparison, and the recorded talk.</span></label>
-    </div>
-  </section>
-
-  <!-- ===================== WEBSITE ===================== -->
-  <section class="phase" data-phase="site" style="border-color:#3fb95044">
-    <div class="phase-head" style="border-bottom-color:#3fb95033">
-      <span class="phase-tag" style="background:rgba(63,185,80,.14); color:var(--green)">Runs through all phases</span>
-      <h3>🌐 Your living "Learning in Public" website</h3>
-      <div class="goal">Grows with you and proves your understanding. Use AI to help <em>build</em> it and <em>check</em> your explanations — but the explanations are yours.</div>
-      <div class="phase-bar-row">
-        <div class="phase-bar"><span style="background:var(--green)"></span></div>
-        <div class="phase-pct">0 / 0</div>
-      </div>
-    </div>
-    <div class="group">
-      <h4>Rules that keep it honest <span class="est">woven in · ~30–60 min per topic</span></h4>
-      <label class="item"><input type="checkbox"><span class="txt"><b>It grows with you</b> — add a section as you finish each phase/topic.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Every word is yours</b> — AI can build the site &amp; check your wording; the understanding is yours. Defend any sentence cold.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Understand your own site's code</b> — teach-back on any AI-written chunk before it stays. Pick your own tech/style.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt"><b>Show the journey</b> — hand-drawn diagrams, "what I had wrong" moments, experiments &amp; surprises, your agent's code.</span></label>
-    </div>
-  </section>
-
-  <!-- ===================== FIRST DAY ===================== -->
-  <section class="phase" data-phase="day1" style="border-color:#d2992244">
-    <div class="phase-head" style="border-bottom-color:#d2992233">
-      <span class="phase-tag" style="background:rgba(210,153,34,.14); color:var(--amber)">Start here · a few hours</span>
-      <h3>📅 Your literal first day</h3>
-      <div class="phase-bar-row">
-        <div class="phase-bar"><span style="background:var(--amber)"></span></div>
-        <div class="phase-pct">0 / 0</div>
-      </div>
-    </div>
-    <div class="group">
-      <label class="item"><input type="checkbox"><span class="txt">Read the whole plan once.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">Start your learning journal (any doc/notebook).</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">First interrogation: <em>"Explain what an LLM is like I've never heard of it, then add one layer of nuance at a time. I'll keep asking."</em></span></label>
-      <label class="item"><input type="checkbox"><span class="txt">Do the Phase-1 diagram exercise — draw the four boxes by hand.</span></label>
-      <label class="item"><input type="checkbox"><span class="txt">First journal entry: what you thought an LLM was before today vs. now.</span></label>
-    </div>
-  </section>
 
 </div>
-
-<footer>
-  <div class="wrap">
-    <span class="save-note" id="saveNote">Progress saves automatically in this browser.</span>
-    <span class="celebrate" id="celebrate">🎉 Whole map complete — go give that talk.</span>
-    <button class="reset" id="resetBtn">Reset progress</button>
-  </div>
-</footer>
-
-<script>
-(function(){
-  const KEY = "llm-phase-map-v1";
-  const boxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
-
-  // Give each box a stable id based on its position so saved state survives reloads.
-  boxes.forEach((b,i)=> b.dataset.id = "c"+i);
-
-  function load(){
-    let saved={};
-    try{ saved = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){}
-    boxes.forEach(b=>{ if(saved[b.dataset.id]) b.checked = true; });
-  }
-  function save(){
-    const data={};
-    boxes.forEach(b=>{ if(b.checked) data[b.dataset.id]=1; });
-    try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){}
-  }
-
-  function updatePhase(section){
-    const bs = section.querySelectorAll('input[type="checkbox"]');
-    const total = bs.length;
-    const done = Array.from(bs).filter(b=>b.checked).length;
-    const pct = total ? Math.round(done/total*100) : 0;
-    const bar = section.querySelector('.phase-bar > span');
-    const lbl = section.querySelector('.phase-pct');
-    if(bar) bar.style.width = pct+"%";
-    if(lbl) lbl.textContent = done+" / "+total;
-  }
-  function updateOverall(){
-    const total = boxes.length;
-    const done = boxes.filter(b=>b.checked).length;
-    const pct = total ? Math.round(done/total*100) : 0;
-    document.getElementById('overallBar').style.width = pct+"%";
-    document.getElementById('overallPct').textContent = pct+"%";
-    document.getElementById('count').textContent = done+" / "+total;
-    document.getElementById('celebrate').style.display = (done===total && total>0) ? "inline" : "none";
-  }
-  function refresh(){
-    document.querySelectorAll('section.phase').forEach(updatePhase);
-    updateOverall();
-  }
-
-  document.addEventListener('change', e=>{
-    if(e.target.matches('input[type="checkbox"]')){ save(); refresh(); }
-  });
-
-  document.getElementById('resetBtn').addEventListener('click', ()=>{
-    if(confirm("Clear all checkmarks? This can't be undone.")){
-      boxes.forEach(b=> b.checked=false);
-      save(); refresh();
-    }
-  });
-
-  // Glossary popovers — click a dotted term to see its one-line definition
-  const tip=document.createElement('div'); tip.className='term-pop'; tip.style.display='none';
-  document.body.appendChild(tip);
-  const closeTip=()=>{ tip.style.display='none'; tip._for=null; };
-  document.addEventListener('click', e=>{
-    const t=e.target.closest('.term');
-    if(t){
-      e.preventDefault(); e.stopPropagation();
-      if(tip.style.display!=='none' && tip._for===t){ closeTip(); return; }
-      tip.textContent=t.dataset.def; tip._for=t; tip.style.display='block';
-      const w=Math.min(300, window.innerWidth-24); tip.style.maxWidth=w+'px';
-      const r=t.getBoundingClientRect();
-      let left=window.scrollX+r.left;
-      if(left+w>window.scrollX+window.innerWidth-12) left=window.scrollX+window.innerWidth-w-12;
-      tip.style.left=Math.max(window.scrollX+8,left)+'px';
-      tip.style.top=(window.scrollY+r.bottom+6)+'px';
-      return;
-    }
-    if(!e.target.closest('.term-pop')) closeTip();
-  });
-  window.addEventListener('scroll', closeTip, {passive:true});
-
-  load();
-  refresh();
-})();
-</script>
 </body>
 </html>
