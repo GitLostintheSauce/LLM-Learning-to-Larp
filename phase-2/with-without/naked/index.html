@@ -6,9 +6,9 @@
 <title>Cognitive Profile — Self-Reflection Battery</title>
 <style>
   :root{
-    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
-    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
-    --green:#3fb950; --red:#f85149; --amber:#d29922;
+    --bg:#eef1ea; --panel:#ffffff; --panel2:#e4e8de; --border:#c7cebf;
+    --text:#232a25; --muted:#5d675e; --accent:#2e7d32; --accent2:#1565c0;
+    --green:#2e7d32; --red:#b0492f; --amber:#8a5a3c;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
@@ -212,7 +212,7 @@ function submitDigits(){
 }
 
 // ================= STROOP =================
-const COLORS=[['RED','#f85149'],['GREEN','#3fb950'],['BLUE','#4dd0e1'],['YELLOW','#d29922']];
+const COLORS=[['RED','#d32f2f'],['GREEN','#2e7d32'],['BLUE','#1565c0'],['YELLOW','#c9a227']];
 let stroopTrial=0, stroopTotal=18, stroopCorrect=0, stroopRTs=[], stroopInk=null, stroopStart=0;
 function startStroop(){ stroopTrial=0; stroopCorrect=0; stroopRTs=[];
   const box=document.getElementById('stroop-btns'); box.innerHTML='';

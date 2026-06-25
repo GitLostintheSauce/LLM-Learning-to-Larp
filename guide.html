@@ -6,10 +6,10 @@
 <title>LLM & Agent Harness — Phase Map</title>
 <style>
   :root{
-    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
-    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
-    --green:#3fb950; --amber:#d29922; --gate:#f78166;
-    --p1:#4dd0e1; --p2:#7c5cff; --p3:#ff8fab;
+    --bg:#eef1ea; --panel:#ffffff; --panel2:#e4e8de; --border:#c7cebf;
+    --text:#232a25; --muted:#5d675e; --accent:#2e7d32; --accent2:#1565c0;
+    --green:#2e7d32; --amber:#8a5a3c; --gate:#8a5a3c;
+    --p1:#1565c0; --p2:#2e7d32; --p3:#8a5a3c;
   }
   *{box-sizing:border-box}
   body{
@@ -23,7 +23,7 @@
   /* Sticky header + overall progress */
   header{
     position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
-    background:rgba(13,17,23,.82); border-bottom:1px solid var(--border);
+    background:rgba(238,241,234,.85); border-bottom:1px solid var(--border);
     padding:16px 0 14px;
   }
   header h1{font-size:18px; margin:0 0 4px; letter-spacing:.2px}
@@ -50,9 +50,9 @@
   .phase-head{padding:18px 20px 14px; border-bottom:1px solid var(--border)}
   .phase-tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
     padding:3px 9px; border-radius:999px; margin-bottom:8px}
-  .p1 .phase-tag{background:rgba(77,208,225,.14); color:var(--p1)}
-  .p2 .phase-tag{background:rgba(124,92,255,.16); color:var(--p2)}
-  .p3 .phase-tag{background:rgba(255,143,171,.14); color:var(--p3)}
+  .p1 .phase-tag{background:rgba(21,101,192,.12); color:var(--p1)}
+  .p2 .phase-tag{background:rgba(46,125,50,.14); color:var(--p2)}
+  .p3 .phase-tag{background:rgba(138,90,60,.14); color:var(--p3)}
   .phase-head h3{margin:0 0 4px; font-size:19px}
   .phase-head .goal{color:var(--muted); font-size:13.5px; margin:6px 0 12px}
   .phase-bar-row{display:flex; align-items:center; gap:12px}
@@ -71,7 +71,7 @@
     color:var(--muted); background:var(--panel2); border:1px solid var(--border); border-radius:999px;
     padding:2px 9px; white-space:nowrap}
   .glabel .est{margin-left:auto; font-weight:600; font-size:11px; color:var(--gate);
-    background:rgba(247,129,102,.1); border:1px solid rgba(247,129,102,.3); border-radius:999px;
+    background:rgba(138,90,60,.1); border:1px solid rgba(138,90,60,.3); border-radius:999px;
     padding:2px 9px; text-transform:none; letter-spacing:0}
 
   /* Checklist items */
@@ -83,7 +83,7 @@
     position:relative; transition:.15s; background:var(--bg)}
   label.item input:checked{background:var(--green); border-color:var(--green)}
   label.item input:checked::after{content:""; position:absolute; left:5px; top:1px; width:5px; height:10px;
-    border:solid #0d1117; border-width:0 2.5px 2.5px 0; transform:rotate(45deg)}
+    border:solid #ffffff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg)}
   label.item .txt{font-size:14px}
   label.item input:checked ~ .txt{color:var(--muted); text-decoration:line-through; text-decoration-color:#586069}
   .item .txt b{color:var(--text); font-weight:600}
@@ -109,18 +109,18 @@
   .term{font:inherit; color:inherit; background:none; border:none; padding:0; cursor:help;
     border-bottom:1.5px dotted var(--accent2)}
   .term:hover{color:var(--accent2)}
-  .term-pop{position:absolute; z-index:200; max-width:300px; background:#0b1220; color:var(--text);
+  .term-pop{position:absolute; z-index:200; max-width:300px; background:var(--panel); color:var(--text);
     border:1px solid var(--accent2); border-radius:8px; padding:9px 12px; font-size:12.5px; line-height:1.5;
-    box-shadow:0 8px 24px rgba(0,0,0,.55)}
+    box-shadow:0 8px 24px rgba(0,0,0,.15)}
 
   /* Gate item */
-  .gate{margin:16px 12px 4px; background:rgba(247,129,102,.07); border:1px solid rgba(247,129,102,.3);
+  .gate{margin:16px 12px 4px; background:rgba(138,90,60,.07); border:1px solid rgba(138,90,60,.3);
     border-radius:10px; padding:4px 6px}
   .gate .glabel{display:flex; align-items:center; gap:8px; padding:8px 12px 2px; font-size:11px;
     font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--gate)}
-  .gate label.item:hover{background:rgba(247,129,102,.08)}
+  .gate label.item:hover{background:rgba(138,90,60,.08)}
 
-  footer{position:fixed; bottom:0; left:0; right:0; background:rgba(13,17,23,.92); backdrop-filter:blur(8px);
+  footer{position:fixed; bottom:0; left:0; right:0; background:rgba(238,241,234,.92); backdrop-filter:blur(8px);
     border-top:1px solid var(--border); padding:12px 0}
   footer .wrap{display:flex; align-items:center; justify-content:space-between; gap:12px}
   .save-note{color:var(--muted); font-size:12px}
@@ -380,7 +380,7 @@
   <!-- ===================== WEBSITE ===================== -->
   <section class="phase" data-phase="site" style="border-color:#3fb95044">
     <div class="phase-head" style="border-bottom-color:#3fb95033">
-      <span class="phase-tag" style="background:rgba(63,185,80,.14); color:var(--green)">Runs through all phases</span>
+      <span class="phase-tag" style="background:rgba(46,125,50,.14); color:var(--green)">Runs through all phases</span>
       <h3>🌐 Your living "Learning in Public" website</h3>
       <div class="goal">Grows with you and proves your understanding. Use AI to help <em>build</em> it and <em>check</em> your explanations — but the explanations are yours.</div>
       <div class="phase-bar-row">
@@ -400,7 +400,7 @@
   <!-- ===================== FIRST DAY ===================== -->
   <section class="phase" data-phase="day1" style="border-color:#d2992244">
     <div class="phase-head" style="border-bottom-color:#d2992233">
-      <span class="phase-tag" style="background:rgba(210,153,34,.14); color:var(--amber)">Start here · a few hours</span>
+      <span class="phase-tag" style="background:rgba(138,90,60,.14); color:var(--amber)">Start here · a few hours</span>
       <h3>📅 Your literal first day</h3>
       <div class="phase-bar-row">
         <div class="phase-bar"><span style="background:var(--amber)"></span></div>
