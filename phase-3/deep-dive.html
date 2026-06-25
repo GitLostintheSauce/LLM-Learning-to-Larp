@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 3 — Go Deep &amp; Go Custom</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#7c5cff; --accent2:#4dd0e1;
+    --green:#3fb950; --amber:#d29922; --red:#f85149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;padding-bottom:80px}
+  a{color:var(--accent2)}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--border);padding:34px 0 26px;margin-bottom:24px}
+  .kicker{color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  header h1{font-size:30px;margin:0 0 8px}
+  header p{color:var(--muted);font-size:15px;margin:0;max-width:640px}
+  h2{font-size:21px;margin:34px 0 10px;border-bottom:1px solid var(--border);padding-bottom:8px}
+  h3{font-size:16px;margin:18px 0 4px}
+  .lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin:12px 0}
+  code{background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 5px;font-size:13px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2)}
+  .win{color:var(--green)} .lose{color:var(--red)}
+  .note{background:var(--panel2);border-left:3px solid var(--amber);border-radius:8px;padding:12px 14px;color:var(--muted);font-size:13px;margin:14px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Phase 3 · Go deep &amp; go custom</div>
+    <h1>Running My Own Model &amp; Harness</h1>
+    <p>Phase 1 was the map; Phase 2 was the parts; Phase 3 is proving it — by running a model
+    and an agent on my own machine, no Claude, no internet, no API key.</p>
+  </header>
+
+  <!-- UNDER THE HOOD -->
+  <h2>1 · A peek under the hood (the gist, not the math)</h2>
+  <div class="card">
+    <h3>Attention / transformers</h3>
+    <p class="lead">The design inside a modern model. When predicting the next word, it
+    <b>weighs which earlier words matter most</b> — "attention" is that weighing. Stack a lot
+    of it and you get a transformer, the engine behind today's models.</p>
+    <h3>Embeddings</h3>
+    <p class="lead">Turning text into a <b>list of numbers that captures meaning</b>, so software
+    can compare and search by meaning (not just exact words). "King" and "queen" land near each other.</p>
+    <h3>Why context costs money &amp; time (KV cache)</h3>
+    <p class="lead">As the model reads, it saves its work on earlier tokens (the <b>KV cache</b>)
+    so it doesn't redo it. But the longer the context, the more there is to hold and process — so
+    <b>longer context = more compute = more cost and more lag.</b></p>
+    <h3>How a model actually runs</h3>
+    <p class="lead">An <b>inference engine</b> is the program that runs a model on your hardware —
+    I used <b>Ollama</b> (others: llama.cpp, vLLM). It leans on your GPU/VRAM (on a Mac, the shared
+    memory). <b>Quantization</b> = storing the model's numbers at lower precision so it fits smaller,
+    cheaper hardware — at some cost to quality. My 1-billion-parameter models are quantized, which is
+    why they fit in 8&nbsp;GB.</p>
+    <h3>How you'd know a model is "good"</h3>
+    <p class="lead"><b>Eval</b> = testing it on real tasks; <b>cost / latency</b> = price and speed;
+    <b>observability</b> = being able to see what it did. My bake-off below is a tiny eval.</p>
+  </div>
+
+  <!-- MY SETUP -->
+  <h2>2 · My local setup</h2>
+  <div class="card">
+    <p class="lead"><b>Hardware:</b> Apple M1, 8&nbsp;GB RAM. <b>Engine:</b> Ollama.
+    <b>Models:</b> <code>llama3.2:1b</code> (1.3&nbsp;GB) and <code>qwen2.5:1.5b</code> (986&nbsp;MB).</p>
+    <p class="lead">These run entirely on the laptop — free, offline, nothing leaves the machine.
+    They're noticeably weaker and (sometimes) slower than Claude. That contrast is the lesson.</p>
+  </div>
+
+  <!-- THE SWAP -->
+  <h2>3 · ★ The swap — model and harness are separate</h2>
+  <div class="card">
+    <p class="lead">I took my Phase-2 agent and pointed it at the local model instead of Claude's API:
+    <a href="../phase-2/tiny_agent.py">tiny_agent.py</a> (Claude) →
+    <a href="tiny_agent_local.py">tiny_agent_local.py</a> (local).</p>
+    <p class="lead"><b>The only real change is <code>call_model()</code>.</b> The loop, the context, and
+    the calculator tool are identical. Yank out the brain (Claude), drop in a different one (llama3.2),
+    and the agent still runs. That proves it: <b>the harness (the body) and the model (the brain) are
+    separate, swappable parts.</b></p>
+    <div class="note"><b>What I noticed:</b> the local model called the calculator once for the
+    multiplication, then did the subtraction <i>in its own head</i> instead of calling the tool again.
+    It got lucky and was right — but "small model does math in its head" is exactly where weaker models
+    slip. A stronger model tends to use the tool for every step.</div>
+  </div>
+
+  <!-- BAKE-OFF -->
+  <h2>4 · Bake-off — two local models, same prompts</h2>
+  <div class="card">
+    <p class="lead">Run via <a href="bakeoff.py">bakeoff.py</a>. Same prompts, both models:</p>
+    <table>
+      <tr><th>Prompt</th><th>llama3.2:1b</th><th>qwen2.5:1.5b</th><th>Right answer</th></tr>
+      <tr><td>Bat &amp; ball reasoning trap</td><td class="lose">$0.15 ✗</td><td class="lose">$0.10 ✗</td><td>$0.05</td></tr>
+      <tr><td>Apollo 11 year (fact)</td><td class="win">1969 ✓</td><td class="win">1969 ✓</td><td>1969</td></tr>
+      <tr><td>List exactly 3 fruits (instruction)</td><td class="win">✓</td><td class="win">✓</td><td>—</td></tr>
+    </table>
+    <div class="note"><b>Finding:</b> both small models nail <b>facts</b> and <b>simple instructions</b>,
+    but <b>both fail the reasoning trap</b> (the right answer is $0.05; they fall for the obvious-but-wrong
+    $0.10-ish trap). Takeaway: tiny local models are fine for recall and formatting, weak on careful
+    reasoning — which is what the big hosted models are still better at.</div>
+  </div>
+
+  <!-- COMPARISON -->
+  <h2>5 · Honest comparison — my setup vs. Claude Code</h2>
+  <div class="card">
+    <table>
+      <tr><th>Pillar</th><th>My local setup</th><th>Claude Code</th></tr>
+      <tr><td>Model</td><td>llama3.2:1b — tiny, weak, but free &amp; private</td><td>Claude — huge, strong, hosted (costs $, data leaves machine)</td></tr>
+      <tr><td>Context</td><td>small window</td><td>very large window</td></tr>
+      <tr><td>Harness</td><td>my ~50-line loop</td><td>full harness: plan mode, subagents, memory, compaction</td></tr>
+      <tr><td>Tools</td><td>one calculator</td><td>files, bash, web, MCP servers, hooks, permissions</td></tr>
+    </table>
+    <p class="lead"><b>The trade:</b> local = free, private, offline, but weaker and barer.
+    Hosted = smart, fast, fully-tooled, but costs money and your data leaves your computer. Same
+    architecture in both — just different-sized parts.</p>
+  </div>
+
+  <!-- WHAT'S LEFT -->
+  <h2>6 · The final gate (what fully closes Phase 3)</h2>
+  <div class="card">
+    <p class="lead">Two things remain for a "complete" Phase 3:</p>
+    <ul>
+      <li><b>Run an open-source harness in the cloud</b> — the same kind of tool as Claude Code but with
+      a public recipe, hosted off my laptop. (Needs cloud resources; the swap above already proves its
+      core lesson — harness and model are separate.)</li>
+      <li><b>The ~10-minute talk</b> — walking this whole stack top-to-bottom with nothing open, using
+      this running setup as the live example. That part is mine to give.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
