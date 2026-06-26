@@ -12,7 +12,7 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
     line-height:1.65;padding-bottom:80px}
   a{color:var(--accent2)}
   .wrap{max-width:880px;margin:0 auto;padding:0 20px}
@@ -57,11 +57,11 @@
   <p class="lead">The text-predictor itself, in parts.</p>
   <div class="part"><b>Tokens</b>
     <div class="mine">How the model breaks apart context.</div>
-    <div class="edit"><b>✏️ Edit:</b> closer — tokens are the chunks (often pieces of words) the model actually
+    <div class="edit"><b>Edit:</b> closer — tokens are the chunks (often pieces of words) the model actually
     reads; text gets broken apart into them (e.g. “unbelievable” → a few tokens).</div></div>
   <div class="part"><b>Training vs. inference</b>
     <div class="mine">Training is when the model is trained on a large data set to learn/infer what comes next, and then the model gets validated with new unseen data.</div>
-    <div class="edit"><b>✏️ Edit:</b> that's the <i>training</i> half — the contrast is <b>inference</b>: actually
+    <div class="edit"><b>Edit:</b> that's the <i>training</i> half — the contrast is <b>inference</b>: actually
     using the finished, frozen model to get an answer (what happens every time you chat with it).</div></div>
   <div class="part"><b>Temperature &amp; sampling</b>
     <div class="mine">How probabilistic you want your model's answers to be.</div></div>
@@ -87,7 +87,7 @@
   <div class="part"><b>Think → act → observe loop</b>
     <div class="hint">Real example: the <code>while True:</code> loop in my agent.</div>
     <div class="mine">The Think → Act → Observe loop, also known as the ReAct pattern, is a method to autonomously plan and replicate critical thinking.</div>
-    <div class="edit"><b>✏️ Edit:</b> more precisely, the loop is the model <b>thinks</b> (reasons), <b>acts</b>
+    <div class="edit"><b>Edit:</b> more precisely, the loop is the model <b>thinks</b> (reasons), <b>acts</b>
     (asks for a tool), and <b>observes</b> (reads the result), repeating to work through a task.</div></div>
   <div class="part"><b>Tool-call protocol</b>
     <div class="hint">Real example: the model returns a <code>tool_use</code>, my code runs it, sends a <code>tool_result</code>.</div>
@@ -113,7 +113,7 @@
   <div class="part"><b>Hooks</b>
     <div class="hint">Real example: <code>validate.py</code> running after every edit (kitted run).</div>
     <div class="mine">Hooks are kind of like built-in skills that Claude Code has that give a standard practice of what to tell the agent/model to do before/after every task.</div>
-    <div class="edit"><b>✏️ Edit:</b> not quite — a hook isn't a skill and doesn't instruct the model. It's an
+    <div class="edit"><b>Edit:</b> not quite — a hook isn't a skill and doesn't instruct the model. It's an
     <b>automatic action the harness runs</b> before/after a step (deterministic code, e.g. <code>validate.py</code>
     firing after every edit). Skills = instructions for the model; hooks = automatic actions for the harness.</div></div>
 
