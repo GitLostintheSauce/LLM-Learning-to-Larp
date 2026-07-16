@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 — Savant, The Missing Pillar</title>
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#faf8f3; --bg2:#f2efe7; --surface:#ffffff; --surface2:#f7f4ec;
+    --line:#ddd5c2; --line-soft:#e9e3d4;
+    --text:#242b3e; --muted:#5f6880; --faint:#98a0b4;
+    --amber:#b5790a; --amber-dim:rgba(181,121,10,.10);
+    --mint:#0d8a63; --mint-dim:rgba(13,138,99,.10);
+    --red:#cf4a4a; --red-dim:rgba(207,74,74,.09);
+    --cyan:#1671b8; --cyan-dim:rgba(22,113,184,.08);
+    --glowA:0 0 0 1px rgba(181,121,10,.45), 0 0 26px rgba(181,121,10,.16);
+    --glowM:0 0 0 1px rgba(13,138,99,.45), 0 0 26px rgba(13,138,99,.16);
+    --shadow:0 12px 34px rgba(40,50,90,.10);
+    --chamfer:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    --chamfer-sm:polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    --display:"Avenir Next","Avenir","Futura","Segoe UI",system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--display); font-size:16px; line-height:1.55; overflow-x:hidden;
+  }
+  ::selection{background:rgba(181,121,10,.22)}
+  h1,h2,h3{text-wrap:balance; margin:0}
+  button{font:inherit; color:inherit; background:none; border:none; cursor:pointer}
+  a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--amber); outline-offset:3px}
+
+  /* ---------- aurora field ---------- */
+  .aurora{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.8;
+    background:
+      radial-gradient(900px 480px at 82% -6%, rgba(22,113,184,.07), transparent 60%),
+      radial-gradient(760px 520px at -8% 28%, rgba(181,121,10,.07), transparent 60%),
+      radial-gradient(900px 600px at 108% 78%, rgba(13,138,99,.06), transparent 60%);
+  }
+  #stars{position:fixed; inset:0; z-index:0; pointer-events:none}
+
+  /* ---------- chapter rail ---------- */
+  .rail{
+    position:fixed; left:22px; top:50%; transform:translateY(-50%); z-index:30;
+    display:flex; flex-direction:column; gap:4px; align-items:center;
+  }
+  .rail::before{content:""; position:absolute; top:10px; bottom:10px; width:1px; background:var(--line-soft); z-index:-1}
+  .rail a{
+    display:flex; align-items:center; justify-content:center;
+    width:30px; height:30px; text-decoration:none;
+    font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--faint);
+    background:var(--bg); border:1px solid var(--line-soft); border-radius:50%;
+    transition:all .25s ease;
+  }
+  .rail a:hover{color:var(--text); border-color:var(--muted)}
+  .rail a.on{color:#fff; background:var(--amber); border-color:var(--amber); box-shadow:0 0 14px rgba(181,121,10,.4)}
+  @media (max-width:1100px){.rail{display:none}}
+
+  /* ---------- layout ---------- */
+  .chapter{position:relative; z-index:1; max-width:1140px; margin:0 auto; padding:110px 30px 70px}
+  .kicker{
+    display:inline-flex; align-items:center; gap:12px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--amber);
+    margin:0 0 18px;
+  }
+  .kicker .ph{
+    padding:4px 10px; border:1px solid var(--amber); background:var(--amber-dim); letter-spacing:.18em;
+  }
+  .kicker .src{color:var(--faint); letter-spacing:.14em}
+  .chapter h2{font-size:clamp(1.9rem,4.4vw,3.3rem); font-weight:600; letter-spacing:-.02em; line-height:1.08}
+  .lede{color:var(--muted); max-width:56ch; margin:16px 0 0; font-size:1.05rem}
+  .lede b{color:var(--text); font-weight:600}
+
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1; transform:none}
+
+  /* ---------- talkable + popover ---------- */
+  .talk{position:relative; cursor:pointer; transition:transform .16s ease}
+  .talk:hover{transform:translateY(-2px)}
+  .talk::after{
+    content:""; position:absolute; top:8px; right:8px; width:7px; height:7px; border-radius:50%;
+    background:var(--amber); box-shadow:0 0 9px var(--amber); opacity:.85;
+  }
+  .pop{
+    position:absolute; z-index:80; width:min(360px, 88vw);
+    background:linear-gradient(180deg, var(--surface2), var(--surface));
+    border:1px solid var(--amber); clip-path:var(--chamfer);
+    padding:18px 20px 16px; box-shadow:var(--shadow);
+    opacity:0; pointer-events:none; transform:translateY(8px) scale(.98);
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .pop.show{opacity:1; pointer-events:auto; transform:none}
+  .pop .pk{font-family:var(--mono); font-size:9.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--amber); margin:0 0 6px}
+  .pop h4{margin:0 0 10px; font-size:1.02rem; font-weight:600}
+  .pop ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px}
+  .pop li{position:relative; padding-left:16px; font-size:13px; line-height:1.5; color:var(--text)}
+  .pop li::before{content:""; position:absolute; left:0; top:8px; width:7px; height:2px; background:var(--amber)}
+  .pop .px{position:absolute; top:10px; right:12px; font-family:var(--mono); font-size:10px; color:var(--faint); padding:3px 6px}
+  .pop .px:hover{color:var(--text)}
+
+  /* ================= HERO ================= */
+  .hero{min-height:92vh; display:flex; flex-direction:column; justify-content:center; padding-top:60px}
+  .hero .repo{
+    font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin:0 0 22px;
+  }
+  .hero .repo b{color:var(--amber); font-weight:600}
+  .hero h1{font-size:clamp(2.6rem,7vw,5.4rem); font-weight:600; line-height:1.02; letter-spacing:-.025em}
+  .hero h1 .larp{color:var(--red); font-style:italic; text-decoration:underline wavy var(--red); text-decoration-thickness:3px; text-underline-offset:12px}
+  .hero h1 .know{color:var(--mint); font-style:normal}
+  .hero .sub{color:var(--muted); font-size:1.12rem; max-width:58ch; margin-top:26px}
+  .hero .sub b{color:var(--text)}
+  .journey{display:flex; gap:0; margin-top:52px; flex-wrap:wrap; align-items:center}
+  .jstep{
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; padding:10px 16px;
+    border:1px solid var(--line); color:var(--muted); background:var(--surface);
+    clip-path:var(--chamfer-sm);
+  }
+  .jstep.done{color:var(--mint); border-color:color-mix(in srgb, var(--mint) 45%, var(--line))}
+  .jstep.next{color:var(--amber); border-color:var(--amber); background:var(--amber-dim); box-shadow:var(--glowA)}
+  .jlink{width:26px; height:1px; background:var(--line); flex:0 0 auto}
+  .hero .hint{
+    display:inline-flex; align-items:center; gap:9px; margin-top:44px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; color:var(--faint);
+  }
+  .hero .hint .dot{width:7px; height:7px; border-radius:50%; background:var(--amber); box-shadow:0 0 9px var(--amber)}
+
+  /* ================= P1 · LOOP ================= */
+  .maplay{display:grid; grid-template-columns:minmax(340px,1fr) minmax(300px,.9fr); gap:50px; align-items:center; margin-top:54px}
+  @media (max-width:960px){.maplay{grid-template-columns:1fr}}
+  .loopbox{position:relative; aspect-ratio:1; max-width:520px; margin:0 auto; width:100%}
+  .loopbox svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+  .loopbox .ring{fill:none; stroke:var(--line); stroke-width:1.5; stroke-dasharray:3 7}
+  .loopbox .pulse{fill:var(--amber); filter:drop-shadow(0 0 6px var(--amber))}
+  .loopbox .pulse2{fill:var(--cyan); filter:drop-shadow(0 0 6px var(--cyan))}
+  .pillarchip{
+    position:absolute; transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:13px 20px 11px; background:var(--surface); border:1px solid var(--line);
+    clip-path:var(--chamfer-sm); min-width:118px; text-align:center;
+  }
+  .pillarchip .t{font-weight:600; font-size:1rem}
+  .pillarchip .d{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; color:var(--faint); text-transform:uppercase}
+  .pillarchip.model{top:7%; left:50%}
+  .pillarchip.context{top:50%; left:93%; border-color:var(--amber); box-shadow:var(--glowA)}
+  .pillarchip.harness{top:93%; left:50%}
+  .pillarchip.tools{top:50%; left:7%}
+  .loopcenter{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; width:60%;
+  }
+  .loopcenter .lc1{font-family:var(--mono); font-size:10px; letter-spacing:.26em; color:var(--faint); text-transform:uppercase}
+  .loopcenter .lc2{font-size:14.5px; font-weight:600; margin-top:8px; min-height:44px; line-height:1.35; color:var(--text)}
+  .loopcenter .lcn{font-family:var(--mono); font-size:10px; color:var(--amber); margin-top:6px; letter-spacing:.14em}
+  .steps7{display:flex; flex-direction:column; gap:9px}
+  .s7{
+    display:flex; gap:14px; align-items:baseline; padding:11px 16px;
+    background:var(--surface); border:1px solid var(--line-soft); clip-path:var(--chamfer-sm);
+    font-size:13.5px; color:var(--muted); transition:all .3s ease;
+  }
+  .s7 .n{font-family:var(--mono); font-size:10px; color:var(--faint); letter-spacing:.1em; flex:0 0 20px}
+  .s7.lit{color:var(--text); border-color:var(--amber); background:linear-gradient(90deg, var(--amber-dim), var(--surface)); }
+  .s7.lit .n{color:var(--amber)}
+
+  /* ================= P2 · BARE VS CONFIGURED ================= */
+  .bench{margin-top:54px; display:grid; grid-template-columns:minmax(280px,1fr) auto minmax(300px,1.25fr); gap:30px; align-items:stretch}
+  @media (max-width:960px){.bench{grid-template-columns:1fr}}
+  .card{
+    background:var(--surface); border:1px solid var(--line); clip-path:var(--chamfer);
+    padding:22px 24px; box-shadow:var(--shadow); position:relative;
+  }
+  .card .tag{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin:0 0 12px}
+  .ticket .row{display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px dashed var(--line-soft); font-size:14px}
+  .ticket .row:last-child{border-bottom:none}
+  .ticket .k{color:var(--muted); font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; padding-top:2px}
+  .ticket .v{font-weight:600; text-align:right}
+  .ticket .v.warn{color:var(--amber)}
+  .benchmid{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px}
+  .benchmid .lab{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); text-align:center}
+  .bigswitch{
+    display:flex; flex-direction:column; gap:0; border:1px solid var(--line); clip-path:var(--chamfer-sm); overflow:hidden;
+  }
+  .bigswitch button{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; padding:13px 22px; color:var(--faint);
+    background:var(--surface); text-transform:uppercase; transition:all .2s;
+  }
+  .bigswitch button.sel.bare{color:var(--red); background:var(--red-dim)}
+  .bigswitch button.sel.conf{color:var(--mint); background:var(--mint-dim)}
+  .answer{min-height:250px; display:flex; flex-direction:column}
+  .answer .verdict{
+    align-self:flex-start; font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    padding:5px 11px; margin-bottom:16px; border:1px solid; transition:all .3s;
+  }
+  .answer.larp .verdict{background:var(--red-dim); color:var(--red); border-color:var(--red)}
+  .answer.right .verdict{background:var(--mint-dim); color:var(--mint); border-color:var(--mint)}
+  .answer.larp{border-color:color-mix(in srgb, var(--red) 50%, var(--line))}
+  .answer.right{border-color:color-mix(in srgb, var(--mint) 50%, var(--line)); box-shadow:var(--glowM)}
+  .answer .said{font-size:1.3rem; font-weight:600; line-height:1.4; min-height:110px}
+  .answer .said .caret{display:inline-block; width:10px; height:1.15em; vertical-align:-3px; background:var(--amber); animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .answer .why{margin-top:auto; font-family:var(--mono); font-size:11px; color:var(--muted); line-height:1.6}
+
+  /* ================= P3 · SWAP ================= */
+  .swaplab{margin-top:54px; display:grid; grid-template-columns:minmax(280px,.9fr) minmax(320px,1.1fr); gap:40px; align-items:start}
+  @media (max-width:960px){.swaplab{grid-template-columns:1fr}}
+  .modelrack{display:flex; flex-direction:column; gap:12px}
+  .mchip{
+    display:flex; align-items:center; gap:14px; padding:15px 18px; text-align:left;
+    background:var(--surface); border:1px solid var(--line); clip-path:var(--chamfer-sm);
+    transition:all .2s;
+  }
+  .mchip:hover{border-color:var(--cyan)}
+  .mchip.sel{border-color:var(--cyan); background:var(--cyan-dim); box-shadow:0 0 0 1px rgba(22,113,184,.35), 0 0 22px rgba(22,113,184,.12)}
+  .mchip .mgl{width:34px; height:34px; flex:0 0 34px; display:grid; place-items:center; border:1px solid var(--line); font-family:var(--mono); font-size:13px; color:var(--cyan)}
+  .mchip .mn{font-weight:600; font-size:.98rem}
+  .mchip .md{font-family:var(--mono); font-size:10px; color:var(--faint); letter-spacing:.08em}
+  .swapstage{position:relative}
+  .swapcard{transition:transform .3s ease, opacity .3s ease}
+  .swapcard.flip{transform:rotateX(90deg); opacity:0}
+  .swapcard .modelname{font-family:var(--mono); font-size:11px; color:var(--cyan); letter-spacing:.1em; margin-bottom:14px}
+  .swapcard .said{font-size:1.25rem; font-weight:600; line-height:1.4}
+  .swapcard .verdict{
+    display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    padding:5px 11px; margin-bottom:14px; background:var(--red-dim); color:var(--red); border:1px solid var(--red);
+  }
+  .swapcount{
+    margin-top:18px; font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--muted);
+    display:flex; gap:26px; flex-wrap:wrap;
+  }
+  .swapcount b{color:var(--red); font-weight:600}
+  .punch{
+    margin-top:34px; padding:20px 26px; border:1px solid var(--amber); background:var(--amber-dim);
+    clip-path:var(--chamfer); font-size:1.2rem; font-weight:600; max-width:640px;
+  }
+  .punch small{display:block; font-family:var(--mono); font-size:10.5px; font-weight:400; letter-spacing:.14em; color:var(--amber); text-transform:uppercase; margin-bottom:8px}
+
+  /* ================= P4 · PIPELINE ================= */
+  .pipewrap{position:relative; margin-top:60px}
+  #flowCanvas{position:absolute; inset:0; z-index:0; pointer-events:none}
+  .pipe{position:relative; z-index:1; display:flex; align-items:center; gap:26px; flex-wrap:wrap}
+  .pipe .srcs{display:flex; flex-direction:column; gap:9px}
+  .srcchip{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; padding:7px 13px;
+    background:var(--surface2); border:1px solid var(--line-soft); color:var(--muted);
+    clip-path:var(--chamfer-sm);
+  }
+  .gates{display:flex; gap:26px; flex:1; flex-wrap:wrap}
+  .gate{
+    flex:1 1 150px; min-width:150px; background:linear-gradient(180deg, var(--surface2), var(--surface));
+    border:1px solid var(--line); clip-path:var(--chamfer); padding:20px 18px 16px;
+    display:flex; flex-direction:column; gap:7px; box-shadow:var(--shadow); transition:border-color .3s, box-shadow .3s;
+  }
+  .gate .num{font-family:var(--mono); font-size:9.5px; letter-spacing:.22em; color:var(--faint)}
+  .gate svg{width:28px; height:28px; stroke:var(--amber); fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+  .gate .name{font-weight:600; font-size:1.02rem}
+  .gate .micro{font-size:12px; color:var(--muted); line-height:1.4}
+  .gate.hot{border-color:var(--amber); box-shadow:var(--glowA)}
+  .agentport{
+    align-self:center; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; padding:13px 17px;
+    border:1px solid var(--mint); color:var(--mint); background:var(--mint-dim); clip-path:var(--chamfer-sm);
+  }
+  .caption{
+    margin-top:34px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .runbtn{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.18em; text-transform:uppercase;
+    padding:13px 28px; border:1px solid var(--amber); color:var(--amber); background:var(--amber-dim);
+    clip-path:var(--chamfer-sm); transition:background .2s;
+  }
+  .runbtn:hover{background:color-mix(in srgb, var(--amber) 24%, transparent)}
+  .subtitle{
+    flex:1; min-width:260px; font-family:var(--mono); font-size:13px; letter-spacing:.04em; color:var(--text);
+    padding:13px 18px; border-left:3px solid var(--amber); background:var(--surface); min-height:47px;
+    display:flex; align-items:center;
+  }
+  .subtitle .cur{opacity:0; animation:subin .5s ease forwards}
+  @keyframes subin{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+  .keys{font-family:var(--mono); font-size:10px; color:var(--faint); letter-spacing:.1em}
+
+  .evidence{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:36px}
+  @media (max-width:960px){.evidence{grid-template-columns:1fr}}
+  .lanehead{
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.24em; text-transform:uppercase;
+    color:var(--faint); margin-bottom:12px; display:flex; align-items:center; gap:10px;
+  }
+  .lanehead::after{content:""; flex:1; height:1px; background:var(--line-soft)}
+  .lane{display:flex; flex-direction:column; gap:13px}
+  .raw{opacity:.35; transition:all .5s ease}
+  .raw .quote{font-size:13.5px; line-height:1.55}
+  .raw .meta{font-family:var(--mono); font-size:10px; color:var(--faint); margin-top:9px}
+  .raw mark{background:transparent; color:inherit; transition:all .5s; padding:1px 3px}
+  .stagey.p1 .raw{opacity:1; border-color:color-mix(in srgb, var(--amber) 42%, var(--line)); box-shadow:var(--glowA)}
+  .stagey.p1 .raw mark{background:var(--amber-dim); color:var(--amber)}
+  .fact,.objcard,.verdictcard{opacity:0; transform:translateY(12px); transition:all .5s ease}
+  .stagey.p2 .fact{opacity:1; transform:none}
+  .fact .fk{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--amber); margin-bottom:6px}
+  .fact .fv{font-size:14px; font-weight:600; line-height:1.4}
+  .fact .prov{font-family:var(--mono); font-size:10px; color:var(--faint); margin-top:8px}
+  .conflict{
+    display:none; font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+    color:var(--red); border:1px solid var(--red); background:var(--red-dim); padding:6px 11px; align-self:flex-start;
+  }
+  .stagey.p2 .conflict{display:inline-block}
+  .stagey.p3 .conflict{color:var(--mint); border-color:var(--mint); background:var(--mint-dim)}
+  .conflict .c2{display:none}
+  .stagey.p3 .conflict .c1{display:none}
+  .stagey.p3 .conflict .c2{display:inline}
+  .stagey.p3 .objcard{opacity:1; transform:none}
+  .objcard pre{margin:0; font-family:var(--mono); font-size:12px; line-height:1.7; white-space:pre; overflow-x:auto}
+  .objcard .key{color:var(--cyan)} .objcard .str{color:var(--amber)} .objcard .n2{color:var(--mint)} .objcard .pv{color:var(--faint)}
+
+  .finale{grid-column:1/-1; margin-top:10px}
+  .looprow{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .lstep{
+    flex:1 1 140px; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    padding:14px 10px; border:1px solid var(--line-soft); color:var(--faint); background:var(--surface2);
+    clip-path:var(--chamfer-sm); transition:all .35s;
+  }
+  .lstep small{display:block; margin-top:5px; font-size:9.5px; opacity:.85}
+  .larr{color:var(--faint)}
+  .stagey.p4 .lstep{color:var(--text); border-color:color-mix(in srgb, var(--mint) 45%, var(--line))}
+  .stagey.p4 .lstep.hot{border-color:var(--mint); color:var(--mint); background:var(--mint-dim); box-shadow:var(--glowM)}
+  .stagey.p4 .verdictcard{opacity:1; transform:none}
+  .verdictcard{margin-top:16px; border-color:var(--mint)}
+  .verdictcard .vb{
+    display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    padding:5px 11px; margin-bottom:12px; background:var(--mint-dim); color:var(--mint); border:1px solid var(--mint);
+  }
+  .verdictcard .said{font-size:1.25rem; font-weight:600}
+  .verdictcard .cites{font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-top:12px}
+
+  /* ================= NEXT CUES ================= */
+  .nextcue{
+    display:inline-block; margin-top:56px; font-family:var(--mono); font-size:10.5px;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--faint); text-decoration:none;
+    transition:color .2s;
+  }
+  .nextcue:hover{color:var(--amber)}
+
+  /* ================= THE PITCH ================= */
+  .askgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:44px}
+  @media (max-width:960px){.askgrid{grid-template-columns:1fr}}
+  .askcard h3{font-size:1.15rem; margin:2px 0 10px}
+  .askcard .ad{margin:0; font-size:14px; color:var(--muted); line-height:1.6}
+  .askcard .ad b{color:var(--text)}
+
+  /* ================= FINALE ================= */
+  .creed{
+    margin-top:70px; text-align:center; padding:70px 30px 30px;
+  }
+  .creed .q{font-size:clamp(1.4rem,3vw,2.1rem); font-weight:600; letter-spacing:-.01em; max-width:30ch; margin:0 auto; line-height:1.3}
+  .creed .q em{color:var(--amber); font-style:normal}
+  .creed .a{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin-top:22px}
+  footer{
+    position:relative; z-index:1; max-width:1140px; margin:20px auto 0; padding:30px; border-top:1px solid var(--line-soft);
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:11px; color:var(--faint); letter-spacing:.06em;
+  }
+  footer a{color:var(--muted)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important}
+    html{scroll-behavior:auto}
+    .reveal{opacity:1; transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+<canvas id="stars"></canvas>
+
+<nav class="rail" aria-label="Chapters">
+  <a href="#hero" data-ch="hero">◆</a>
+  <a href="#p1" data-ch="p1">P1</a>
+  <a href="#p2" data-ch="p2">P2</a>
+  <a href="#p3" data-ch="p3">P3</a>
+  <a href="#p4" data-ch="p4">P4</a>
+  <a href="#ask" data-ch="ask">★</a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section class="chapter hero" id="hero">
+  <p class="repo">github / <b>LLM-Learning-to-Larp</b> / phase-4 · a proposal for savant</p>
+  <h1>Agents learn to <span class="larp">larp</span>.<br>Savant teaches them to <span class="know">know</span>.</h1>
+  <p class="sub">I spent three phases learning — in public — exactly how agents work.
+  <b>This is the phase 4 I want to build with you.</b></p>
+
+  <div class="journey">
+    <span class="jstep done talk" data-talk="jp1" tabindex="0">P1 · THE BIG MAP ✓</span>
+    <span class="jlink"></span>
+    <span class="jstep done talk" data-talk="jp2" tabindex="0">P2 · BUILT BY HAND ✓</span>
+    <span class="jlink"></span>
+    <span class="jstep done talk" data-talk="jp3" tabindex="0">P3 · THE SWAP ✓</span>
+    <span class="jlink"></span>
+    <span class="jstep next talk" data-talk="jp4" tabindex="0">P4 · THE MISSING PILLAR</span>
+  </div>
+
+  <span class="hint"><span class="dot"></span> anything with a dot has my talking points · scroll to start</span>
+</section>
+
+<!-- ================= P1 ================= -->
+<section class="chapter" id="p1">
+  <p class="kicker"><span class="ph">PHASE 1</span><span class="src">from my repo · the big map</span></p>
+  <h2>Four pillars. One loop.</h2>
+  <p class="lede">Everything an agent does is these four parts taking turns.
+  <b>The loop below is running the seven steps from my Phase 1 notes.</b></p>
+
+  <div class="maplay reveal">
+    <div class="loopbox">
+      <svg viewBox="0 0 400 400" aria-hidden="true">
+        <circle class="ring" cx="200" cy="200" r="150"/>
+        <circle class="pulse" r="6">
+          <animateMotion dur="7s" repeatCount="indefinite"
+            path="M 200 50 A 150 150 0 1 1 199.9 50"/>
+        </circle>
+        <circle class="pulse2" r="4">
+          <animateMotion dur="7s" begin="3.5s" repeatCount="indefinite"
+            path="M 200 50 A 150 150 0 1 1 199.9 50"/>
+        </circle>
+      </svg>
+      <div class="pillarchip model talk" data-talk="pModel" tabindex="0"><span class="t">Model</span><span class="d">decides</span></div>
+      <div class="pillarchip context talk" data-talk="pContext" tabindex="0"><span class="t">Context</span><span class="d">sees · savant's home</span></div>
+      <div class="pillarchip harness talk" data-talk="pHarness" tabindex="0"><span class="t">Harness</span><span class="d">the cable cord</span></div>
+      <div class="pillarchip tools talk" data-talk="pTools" tabindex="0"><span class="t">Tools</span><span class="d">reaches out</span></div>
+      <div class="loopcenter">
+        <div class="lc1">The Loop</div>
+        <div class="lc2" id="loopText">a human types a request</div>
+        <div class="lcn" id="loopNum">STEP 1 / 7</div>
+      </div>
+    </div>
+    <div class="steps7" id="steps7">
+      <div class="s7"><span class="n">01</span>human types a request</div>
+      <div class="s7"><span class="n">02</span>harness assembles the context</div>
+      <div class="s7"><span class="n">03</span>context goes to the model</div>
+      <div class="s7"><span class="n">04</span>model picks a tool to call</div>
+      <div class="s7"><span class="n">05</span>harness executes it in the world</div>
+      <div class="s7"><span class="n">06</span>result flows back into context</div>
+      <div class="s7"><span class="n">07</span>model: done → report, or loop</div>
+    </div>
+  </div>
+  <a class="nextcue" href="#p2">↓ phase 2 · run it bare, then configured</a>
+</section>
+
+<!-- ================= P2 ================= -->
+<section class="chapter" id="p2">
+  <p class="kicker"><span class="ph">PHASE 2</span><span class="src">from my repo · built a tiny agent by hand</span></p>
+  <h2>Bare vs. configured.</h2>
+  <p class="lede">In Phase 2 I ran my hand-built agent both ways and watched the difference.
+  <b>Same experiment, on Savant's favorite ticket:</b></p>
+
+  <div class="bench reveal">
+    <div class="card ticket talk" data-talk="ticket" tabindex="0">
+      <p class="tag">Incoming — Zendesk #5107</p>
+      <div class="row"><span class="k">Request</span><span class="v">Refund</span></div>
+      <div class="row"><span class="k">Purchased</span><span class="v warn">34 days ago</span></div>
+      <div class="row"><span class="k">Account</span><span class="v">Enterprise</span></div>
+      <div class="row"><span class="k">Written policy</span><span class="v">30-day window</span></div>
+    </div>
+
+    <div class="benchmid">
+      <span class="lab">My Phase 2<br>experiment</span>
+      <div class="bigswitch" role="group" aria-label="Agent configuration">
+        <button class="bare sel" id="btnBare">Bare agent</button>
+        <button class="conf" id="btnConf">+ Context layer</button>
+      </div>
+    </div>
+
+    <div class="card answer larp talk" data-talk="larp" tabindex="0" id="answerCard">
+      <span class="verdict" id="answerVerdict">Plausible · Wrong</span>
+      <p class="said"><span id="answerText"></span><span class="caret" id="caret"></span></p>
+      <p class="why" id="answerWhy">it could only see the written policy — so it played the role of someone who knows. that's the larp.</p>
+    </div>
+  </div>
+  <a class="nextcue" href="#p3">↓ phase 3 · try fixing it with a better model</a>
+</section>
+
+<!-- ================= P3 ================= -->
+<section class="chapter" id="p3">
+  <p class="kicker"><span class="ph">PHASE 3</span><span class="src">from my repo · the swap</span></p>
+  <h2>Swap the model. Keep the larp.</h2>
+  <p class="lede">In Phase 3 I swapped cloud models for local ones under the same harness — proving the pillars are
+  separate, swappable parts. <b>So try fixing the refund answer with a better model:</b></p>
+
+  <div class="swaplab reveal">
+    <div class="modelrack">
+      <button class="mchip sel talk" data-model="frontier-xl" data-talk="mFrontier" tabindex="0">
+        <span class="mgl">◈</span>
+        <span><span class="mn">frontier-xl</span><br><span class="md">CLOUD · 2T PARAMS · $$$</span></span>
+      </button>
+      <button class="mchip talk" data-model="open-70b" data-talk="mOpen" tabindex="0">
+        <span class="mgl">◇</span>
+        <span><span class="mn">open-70b</span><br><span class="md">OPEN WEIGHTS · FINE-TUNED</span></span>
+      </button>
+      <button class="mchip talk" data-model="local-8b" data-talk="mLocal" tabindex="0">
+        <span class="mgl">○</span>
+        <span><span class="mn">local-8b</span><br><span class="md">RUNS ON MY LAPTOP · PHASE 3</span></span>
+      </button>
+    </div>
+
+    <div class="swapstage">
+      <div class="card swapcard" id="swapCard">
+        <p class="modelname" id="swapModel">MODEL: FRONTIER-XL</p>
+        <span class="verdict">Still Larping</span>
+        <p class="said" id="swapSaid">“Denied — purchases are only refundable within 30 days.”</p>
+      </div>
+      <div class="swapcount">
+        <span>models swapped: <b id="swapN">1</b></span>
+        <span>correct answers: <b>0</b></span>
+      </div>
+      <div class="punch talk" data-talk="punch" tabindex="0">
+        <small>What Phase 3 proved</small>
+        The model was never the missing pillar. The context is.
+      </div>
+    </div>
+  </div>
+  <a class="nextcue" href="#p4">↓ phase 4 · the missing pillar, built as a product</a>
+</section>
+
+<!-- ================= P4 ================= -->
+<section class="chapter" id="p4">
+  <p class="kicker"><span class="ph">PHASE 4</span><span class="src">savant · the missing pillar, built as a product</span></p>
+  <h2>Connect. Capture. Structure. Serve.</h2>
+  <p class="lede">Savant owns the context pillar for a whole company — and hands it to the loop
+  <b>at the exact step where the decision happens.</b></p>
+
+  <div class="pipewrap reveal">
+    <canvas id="flowCanvas"></canvas>
+    <div class="pipe" id="pipeRow">
+      <div class="srcs" id="srcCol">
+        <span class="srcchip">Slack</span>
+        <span class="srcchip">Salesforce</span>
+        <span class="srcchip">Zendesk</span>
+        <span class="srcchip">Workspace</span>
+        <span class="srcchip">Intercom</span>
+      </div>
+      <div class="gates">
+        <div class="gate talk" data-talk="connect" data-gate="1" tabindex="0">
+          <span class="num">GATE 1</span>
+          <svg viewBox="0 0 24 24"><path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 0 1-10 0V7zM12 16v5"/></svg>
+          <span class="name">Connect</span>
+          <span class="micro">read-only taps, no migration</span>
+        </div>
+        <div class="gate talk" data-talk="capture" data-gate="2" tabindex="0">
+          <span class="num">GATE 2</span>
+          <svg viewBox="0 0 24 24"><path d="M4 4h16l-6 8v7l-4-2v-5L4 4z"/></svg>
+          <span class="name">Capture</span>
+          <span class="micro">the unwritten rules</span>
+        </div>
+        <div class="gate talk" data-talk="structure" data-gate="3" tabindex="0">
+          <span class="num">GATE 3</span>
+          <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M7.8 7.5 10.8 16M16.2 7.5 13.2 16M8.4 6h7.2"/></svg>
+          <span class="name">Structure</span>
+          <span class="micro">objects with provenance</span>
+        </div>
+        <div class="gate talk" data-talk="serve" data-gate="4" tabindex="0">
+          <span class="num">GATE 4</span>
+          <svg viewBox="0 0 24 24"><path d="M13 2 5 13h5l-1 9 8-11h-5l1-9z"/></svg>
+          <span class="name">Serve</span>
+          <span class="micro">decision-time tool call</span>
+        </div>
+      </div>
+      <span class="agentport" id="agentPort">→ THE LOOP</span>
+    </div>
+
+    <div class="caption">
+      <button class="runbtn" id="runBtn">▶ Tell the story</button>
+      <div class="subtitle"><span class="cur" id="subText">you set the pace — click ▶ (or press →) for one beat at a time</span></div>
+      <span class="keys">← → STEP · CLICK GATES FOR DEPTH</span>
+    </div>
+
+    <div class="stagey" id="stagey">
+      <div class="evidence">
+        <div class="lane">
+          <div class="lanehead">Raw truth</div>
+          <div class="card raw talk" data-talk="wiki" tabindex="0">
+            <p class="tag">Wiki · refund-policy.md</p>
+            <p class="quote">“Refunds are honored within <mark>30 days</mark> of purchase.”</p>
+            <p class="meta">last edited 14 months ago</p>
+          </div>
+          <div class="card raw talk" data-talk="slack" tabindex="0">
+            <p class="tag">Slack · #cs-escalations</p>
+            <p class="quote">“fyi for enterprise accts we honor <mark>45 days</mark> — dana approved this after the Acme thing”</p>
+            <p class="meta">Dana (Head of CS) · Mar 2026 · 6 replies</p>
+          </div>
+          <div class="card raw talk" data-talk="zendesk" tabindex="0">
+            <p class="tag">Zendesk · ticket #4821</p>
+            <p class="quote">Enterprise refund <mark>approved on day 41</mark>. Resolved by J. Park.</p>
+            <p class="meta">May 2026 · precedent</p>
+          </div>
+        </div>
+
+        <div class="lane">
+          <div class="lanehead">Captured knowledge</div>
+          <div class="card fact talk" data-talk="factWritten" tabindex="0">
+            <p class="fk">Policy · as written</p>
+            <p class="fv">Refund window = 30 days</p>
+            <p class="prov">↳ wiki/refund-policy.md</p>
+          </div>
+          <div class="card fact talk" data-talk="factPracticed" tabindex="0">
+            <p class="fk">Policy · as practiced</p>
+            <p class="fv">Enterprise window = 45 days</p>
+            <p class="prov">↳ slack/#cs-escalations · approved: Dana</p>
+          </div>
+          <div class="card fact talk" data-talk="factPrecedent" tabindex="0">
+            <p class="fk">Precedent</p>
+            <p class="fv">Day-41 enterprise refund approved</p>
+            <p class="prov">↳ zendesk/#4821</p>
+          </div>
+          <button class="conflict talk" data-talk="conflict">
+            <span class="c1">⚠ CONFLICT · WIKI vs SLACK</span>
+            <span class="c2">✓ RESOLVED · EXCEPTION WINS · PROVENANCE KEPT</span>
+          </button>
+        </div>
+
+        <div class="lane">
+          <div class="lanehead">Structured · current</div>
+          <div class="card objcard talk" data-talk="object" tabindex="0">
+            <p class="tag">savant://policy/refund-window</p>
+<pre><span class="key">refund_window</span>:
+  <span class="key">default</span>:     <span class="n2">30d</span>   <span class="pv">← wiki</span>
+  <span class="key">enterprise</span>:  <span class="n2">45d</span>   <span class="pv">← slack, ticket</span>
+<span class="key">confidence</span>:   <span class="str">high</span>
+<span class="key">approved_by</span>:  <span class="str">"Dana, Head of CS"</span>
+<span class="key">status</span>:       <span class="str">current</span>
+<span class="key">provenance</span>:   <span class="n2">3</span> sources</pre>
+          </div>
+        </div>
+
+        <div class="finale lane">
+          <div class="lanehead">Back in the loop — step 4 of 7, the tool call</div>
+          <div class="looprow talk" data-talk="loop" tabindex="0">
+            <div class="lstep">THINK<small>day 34, enterprise… policy?</small></div>
+            <span class="larr">→</span>
+            <div class="lstep hot">ACT<small>query savant()</small></div>
+            <span class="larr">→</span>
+            <div class="lstep">OBSERVE<small>enterprise = 45d</small></div>
+            <span class="larr">→</span>
+            <div class="lstep">DECIDE<small>34 &lt; 45 ✓</small></div>
+          </div>
+          <div class="card verdictcard talk" data-talk="decision" tabindex="0">
+            <span class="vb">Correct · With Receipts</span>
+            <p class="said">“Refund approved — enterprise window is 45 days.”</p>
+            <p class="cites">cites: #cs-escalations · ticket #4821 · policy object v3</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <a class="nextcue" href="#ask">↓ so here's the pitch</a>
+</section>
+
+<!-- ================= THE PITCH ================= -->
+<section class="chapter" id="ask">
+  <p class="kicker"><span class="ph">THE PITCH</span><span class="src">where i'd plug in · week one</span></p>
+  <h2>I've already built miniatures of your problems.</h2>
+  <p class="lede">Not a title pitch — a shipping one. <b>Three things on a 5-person team's plate that I've done small versions of:</b></p>
+
+  <div class="askgrid reveal">
+    <div class="card askcard talk" data-talk="askEvals" tabindex="0">
+      <p class="tag">Strongest card</p>
+      <h3>Extraction evals</h3>
+      <p class="ad">My tokamak data pipeline ships with a <b>76-test eval suite</b> guarding its extract → structure → validate stages. That's your "did Gate 2 capture the rule correctly?" problem, in miniature.</p>
+    </div>
+    <div class="card askcard talk" data-talk="askConnectors" tabindex="0">
+      <p class="tag">The unglamorous 80%</p>
+      <h3>Connectors</h3>
+      <p class="ad">REST APIs, auth, pagination, rate limits — the plumbing behind Gate 1. I've shipped this kind of integration work end to end, and it's exactly the backlog that shouldn't cost founder-hours.</p>
+    </div>
+    <div class="card askcard talk" data-talk="askTooling" tabindex="0">
+      <p class="tag">Force multiplier</p>
+      <h3>Internal tooling</h3>
+      <p class="ad">I build <b>Dash dashboards</b> for pipeline health and review — the same shape as the conflict-review and provenance-inspection views a context layer needs internally.</p>
+    </div>
+  </div>
+
+  <div class="punch talk" data-talk="theAsk" tabindex="0">
+    <small>The ask</small>
+    Give me one scoped trial project. I ship, you evaluate — then we talk.
+  </div>
+</section>
+
+<!-- ================= FINALE ================= -->
+<section class="creed reveal" id="creed">
+  <p class="q">“I can only keep a sentence if I can <em>defend it aloud</em> with nothing open.”</p>
+  <p class="a">the rule from my repo — and how I'd build your context layer</p>
+</section>
+
+<footer>
+  <span>scenario is illustrative · built for a conversation with savant</span>
+  <a href="https://github.com/GitLostintheSauce/LLM-Learning-to-Larp" target="_blank" rel="noopener">phases 1–3: LLM-Learning-to-Larp ↗</a>
+</footer>
+
+<!-- anchored popover (non-modal, never dims the page) -->
+<div class="pop" id="pop" role="note" aria-live="polite">
+  <button class="px" id="popClose">ESC ✕</button>
+  <p class="pk">Talking points</p>
+  <h4 id="popTitle"></h4>
+  <ul id="popList"></ul>
+</div>
+
+<script>
+/* ============ talking points ============ */
+const TALK = {
+  jp1:{t:"Phase 1 · The Big Map",b:[
+    "One week to answer: what happens between typing a request and an AI editing a file?",
+    "Output: the four pillars & the loop — Model, Context, Harness, Tools — hand-drawn first, then defended aloud.",
+    "My rule the whole way: I can only keep a sentence if I can defend it with nothing open."]},
+  jp2:{t:"Phase 2 · Built By Hand",b:[
+    "Split each pillar open: tokens, context windows, RAG, tool protocols, MCP, subagents.",
+    "Built a tiny agent by hand (~50 lines) and ran it bare vs. fully configured, side by side.",
+    "That bare-vs-configured experiment is exactly the Savant pitch, one company wide."]},
+  jp3:{t:"Phase 3 · The Swap",b:[
+    "Went deep: attention, embeddings, KV caching, quantization — then ran open models locally.",
+    "The swap: replaced the cloud model with a local one under the same harness. Everything still worked.",
+    "Proved the pillars are separate, swappable parts. Which raises the question phase 4 answers."]},
+  jp4:{t:"Phase 4 · The Missing Pillar",b:[
+    "Models are commodity — swappable, improving, getting cheaper.",
+    "Correctness about YOUR company never ships with the weights. Someone has to own that pillar.",
+    "That's Savant. And it's the phase I can't finish alone — it needs a real company's knowledge to build against."]},
+  pModel:{t:"Pillar · Model",b:[
+    "A static predictor — it only answers from its current context, and delegates all execution to the harness.",
+    "It decides WHAT to do; it can't see anything you don't hand it.",
+    "Phase 3 taught me to treat it as a replaceable part, not the magic."]},
+  pContext:{t:"Pillar · Context — Savant's home",b:[
+    "The model's working memory: every token it can currently see. Nothing more.",
+    "It's the scarce resource — the right 500 tokens beat 50,000 stale ones.",
+    "Savant's product is owning this pillar for an entire company, continuously."]},
+  pHarness:{t:"Pillar · Harness — the cable cord",b:[
+    "My Phase 1 metaphor: the harness is the cable cord connecting model cognition to real-world action.",
+    "It assembles context, runs the loop, executes tools, feeds results back.",
+    "I've built one by hand — so I know exactly where a Savant call plugs into it."]},
+  pTools:{t:"Pillar · Tools",b:[
+    "Everything beyond the context window: APIs, files, the outside world.",
+    "MCP is becoming the standard doorway — and it's Savant's doorway into any agent.",
+    "Savant = the context pillar, delivered through the tools pillar."]},
+  ticket:{t:"The test ticket",b:[
+    "One scenario runs through this whole demo: day-34 refund, enterprise account.",
+    "The written policy says 30 days — so every well-behaved agent should deny it.",
+    "The correct answer exists nowhere in any document. That's the point."]},
+  larp:{t:"Why the bare agent larps",b:[
+    "An LLM returns the most PLAUSIBLE answer given what it sees — not the most correct one.",
+    "My repo's name is the thesis: without context, the model is larping — confidently playing someone who knows.",
+    "Flip to '+ context layer' and watch the same model, same harness, get it right."]},
+  mFrontier:{t:"frontier-xl",b:[
+    "The biggest, most expensive cloud model available.",
+    "It larps more eloquently — the denial comes with beautiful empathy.",
+    "Scale improves fluency, not company-specific truth."]},
+  mOpen:{t:"open-70b",b:[
+    "Fine-tuned open weights — the 'we'll just train it on our data' fantasy.",
+    "Fine-tuning bakes in yesterday's knowledge; Dana's 45-day call happened after the snapshot.",
+    "Static weights can't track living policy."]},
+  mLocal:{t:"local-8b",b:[
+    "The model from my Phase 3 swap — runs on my laptop.",
+    "Under the same harness it behaves identically: same loop, same tools, same larp.",
+    "That swap is what convinced me the moat is never the model."]},
+  punch:{t:"The bridge to Savant",b:[
+    "Three models, three sizes, three price points — zero correct answers.",
+    "The variable that flips the outcome isn't parameters, it's what the agent can see at decision time.",
+    "This is why 'context layer' is a durable business while models commoditize underneath it."]},
+  connect:{t:"Gate 1 · Connect",b:[
+    "Read-only OAuth into Slack, Workspace, Salesforce, Zendesk, Intercom.",
+    "Webhooks where offered, incremental polling where not; dedup and rate limits are the unglamorous 80%.",
+    "The hard part: normalizing a Slack message, a Salesforce object, and a ticket into one schema.",
+    "No migration — Savant sits on top of what already exists."]},
+  capture:{t:"Gate 2 · Capture",b:[
+    "LLM extraction over threads, tickets, and email chains — not just documents.",
+    "Target: judgment calls, exceptions, escalation paths — policy-as-practiced vs policy-as-written.",
+    "Entity resolution ('Dana' = Head of CS = authority) plus human review keeps precision high.",
+    "This produces artifacts that exist nowhere in the company's systems."]},
+  structure:{t:"Gate 3 · Structure",b:[
+    "Policies and workflows become first-class objects, not embedded text chunks.",
+    "Every field keeps provenance links — trust requires receipts.",
+    "'Continuously current' = change detection: a new thread contradicting the store is a diff to resolve.",
+    "Likely a knowledge graph for relationships and conflicts, embeddings for recall."]},
+  serve:{t:"Gate 4 · Serve",b:[
+    "A decision-time API — MCP-shaped, callable from any harness, including the one I built by hand.",
+    "Returns the rule itself ('enterprise: 45d, source: …'), not ten chunks to re-read.",
+    "Per-agent permissioning: which agent may see which context.",
+    "The eval that proves the product: did this context flip a decision from wrong to right?"]},
+  wiki:{t:"The wiki",b:[
+    "Documented knowledge — clean, official, and 14 months stale.",
+    "This is all my Phase 2 bare agent could have retrieved with vanilla RAG.",
+    "Staleness isn't a wiki bug you fix by writing more wiki."]},
+  slack:{t:"The Slack thread",b:[
+    "Undocumented knowledge: a real judgment call by the right person, never written down.",
+    "Savant's core bet — the highest-value knowledge lives in threads like this.",
+    "Extraction must catch WHO (authority), WHEN (recency), and WHY (the Acme incident)."]},
+  zendesk:{t:"The precedent",b:[
+    "A resolved ticket proves the exception is exercised practice, not one comment.",
+    "Two independent signals corroborating beats one.",
+    "Ticket resolutions are semi-structured already — a perfect extraction target."]},
+  factWritten:{t:"Captured · as written",b:[
+    "The official rule is kept, not discarded — it's ranked, with provenance attached at capture time."]},
+  factPracticed:{t:"Captured · as practiced",b:[
+    "The distilled judgment call: enterprise → 45 days, with approver name and role.",
+    "This artifact was manufactured from a Slack thread. It existed nowhere before.",
+    "This is the product. Everything else is plumbing to make this reliable."]},
+  factPrecedent:{t:"Captured · precedent",b:[
+    "Evidence the exception is live practice — corroboration raises the confidence score agents rely on."]},
+  conflict:{t:"Conflict resolution",b:[
+    "Wiki says 30, Slack says 45. A vector store serves both chunks and lets the agent guess.",
+    "Savant takes a position: recency + authority + corroborating precedent → the exception wins.",
+    "The losing source stays in provenance. 'Kept continuously current' is this, forever."]},
+  object:{t:"The policy object",b:[
+    "One queryable object: default + exception, confidence, approver, freshness, provenance count.",
+    "Versus RAG: the agent gets the rule itself, not homework.",
+    "First-class objects also make evals deterministic: assert store says 45d. Done."]},
+  loop:{t:"Step 4 of 7 — the tool call",b:[
+    "This is MY loop diagram from Phase 1 — Savant plugs in at step 4, where the model picks a tool.",
+    "Decision-time beats prompt-time: ask for exactly what THIS decision needs, get it fresh.",
+    "Latency matters — this call sits inside every loop iteration.",
+    "Having built the harness side, I know how easy this integration has to feel."]},
+  decision:{t:"The payoff",b:[
+    "Same model as the bare run. The only change is what it saw at decision time.",
+    "The answer ships with citations a human can audit — that's what lets enterprises trust agents to act.",
+    "One line: Savant turns plausible into correct, with receipts."]},
+  askEvals:{t:"Extraction evals — my strongest card",b:[
+    "Physics data pipeline: extract → structure → validate, guarded by a 76-test eval suite.",
+    "Golden examples, edge cases, regression on every change — extraction you trust because it's measured.",
+    "Genuinely curious how you eval Gate 2 quality today — this is the piece I'd most want to build."]},
+  askConnectors:{t:"Connectors",b:[
+    "Every new customer tool is a connector ticket: OAuth, webhooks vs polling, dedup, rate limits.",
+    "I've shipped REST integrations end to end — well-scoped, high-leverage work for a new pair of hands.",
+    "Five people shouldn't spend founder-hours on pagination bugs."]},
+  askTooling:{t:"Internal tooling",b:[
+    "Dash dashboards for pipeline monitoring — same shape as your conflict-review queue.",
+    "The internal tools nobody has time for are exactly what a technical generalist ships in week one."]},
+  theAsk:{t:"The ask",b:[
+    "Not asking for a title — a 5-person startup needs people who ship, and founders own product.",
+    "One scoped trial: a connector, an eval harness, or an internal tool. A couple of weeks, real output.",
+    "Worst case you get a free feature; best case you've derisked a hire.",
+    "If now's not the moment: I'd take advice, intros, and a spot on the radar."]}
+};
+
+/* ============ anchored popover (non-modal) ============ */
+const pop = document.getElementById('pop');
+const popTitle = document.getElementById('popTitle');
+const popList = document.getElementById('popList');
+let popFor = null;
+
+function showPop(el){
+  const t = TALK[el.dataset.talk]; if(!t) return;
+  popTitle.textContent = t.t;
+  popList.innerHTML = '';
+  t.b.forEach(x=>{const li=document.createElement('li'); li.textContent=x; popList.appendChild(li);});
+  pop.classList.add('show'); popFor = el;
+  positionPop(el);
+}
+function positionPop(el){
+  const r = el.getBoundingClientRect();
+  const pw = Math.min(360, innerWidth*0.88);
+  pop.style.width = pw+'px';
+  // measure after content set
+  const ph = pop.offsetHeight;
+  let x = r.right + 14 + scrollX;
+  let y = r.top + scrollY - 6;
+  if (r.right + 14 + pw > innerWidth - 12) x = r.left + scrollX - pw - 14;   // flip left
+  if (x < 12 + scrollX) { x = Math.min(Math.max(12+scrollX, r.left+scrollX), innerWidth-pw-12+scrollX); y = r.bottom + 12 + scrollY; } // below
+  const maxY = scrollY + innerHeight - ph - 12;
+  if (y > maxY) y = Math.max(scrollY + 12, maxY);
+  pop.style.left = x+'px';
+  pop.style.top = y+'px';
+}
+function hidePop(){ pop.classList.remove('show'); popFor = null; }
+document.querySelectorAll('.talk').forEach(el=>{
+  el.addEventListener('click', e=>{
+    e.stopPropagation();
+    // model chips: first click swaps the model, a second click on the selected chip opens talking points
+    if (el.classList.contains('mchip') && !el.classList.contains('sel')) { hidePop(); return; }
+    if (popFor === el) { hidePop(); return; }
+    showPop(el);
+  });
+  el.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); popFor===el ? hidePop() : showPop(el); }
+  });
+});
+document.getElementById('popClose').addEventListener('click', e=>{e.stopPropagation(); hidePop();});
+document.addEventListener('click', e=>{ if(!pop.contains(e.target)) hidePop(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') hidePop(); });
+addEventListener('scroll', ()=>{ if(popFor) positionPop(popFor); }, {passive:true});
+
+/* ============ reduced motion ============ */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ starfield canvas ============ */
+const starC = document.getElementById('stars');
+const sctx = starC.getContext('2d');
+let stars = [];
+function sizeStars(){
+  starC.width = innerWidth * devicePixelRatio;
+  starC.height = innerHeight * devicePixelRatio;
+  sctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  const n = Math.min(110, Math.floor(innerWidth/14));
+  stars = Array.from({length:n}, ()=>({
+    x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+    r:Math.random()*1.4+.3, v:Math.random()*.14+.03,
+    c:Math.random()<.82 ? '181,121,10' : (Math.random()<.5?'13,138,99':'22,113,184'),
+    a:Math.random()*.35+.12, tw:Math.random()*Math.PI*2
+  }));
+}
+sizeStars(); addEventListener('resize', sizeStars);
+function drawStars(t){
+  sctx.clearRect(0,0,innerWidth,innerHeight);
+  for(const s of stars){
+    s.y -= s.v; if(s.y < -4){ s.y = innerHeight+4; s.x = Math.random()*innerWidth; }
+    const a = s.a * (0.65 + 0.35*Math.sin(t/900 + s.tw));
+    sctx.beginPath(); sctx.arc(s.x, s.y, s.r, 0, 7);
+    sctx.fillStyle = `rgba(${s.c},${a})`; sctx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+if(!reduced) requestAnimationFrame(drawStars);
+
+/* ============ scroll reveals + rail ============ */
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }),{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const railLinks = [...document.querySelectorAll('.rail a')];
+const chIO = new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      railLinks.forEach(a=>a.classList.toggle('on', a.dataset.ch===e.target.id));
+    }
+  });
+},{rootMargin:'-40% 0px -50% 0px'});
+['hero','p1','p2','p3','p4','ask'].forEach(id=>chIO.observe(document.getElementById(id)));
+
+/* ============ P1: loop step ticker ============ */
+const STEPS7 = [
+  "a human types a request","harness assembles the context","context goes to the model",
+  "model picks a tool to call","harness executes it in the world","result flows back into context",
+  "model: done → report, or loop"
+];
+const loopText = document.getElementById('loopText');
+const loopNum = document.getElementById('loopNum');
+const s7els = [...document.querySelectorAll('.s7')];
+let s7i = 0;
+function tickLoop(){
+  s7els.forEach((el,i)=>el.classList.toggle('lit', i===s7i));
+  loopText.textContent = STEPS7[s7i];
+  loopNum.textContent = `STEP ${s7i+1} / 7`;
+  s7i = (s7i+1)%7;
+}
+tickLoop();
+if(!reduced) setInterval(tickLoop, 2400);
+
+/* ============ P2: bare vs configured typewriter ============ */
+const ANSWERS = {
+  bare:{v:"Plausible · Wrong", cls:"larp",
+    text:"“Denied — you're outside our 30-day refund window. Apologies for the inconvenience!”",
+    why:"it could only see the written policy — so it played the role of someone who knows. that's the larp."},
+  conf:{v:"Correct", cls:"right",
+    text:"“Approved — enterprise accounts have a 45-day window.”",
+    why:"source: #cs-escalations · dana · mar 2026 · served by savant at decision time."}
+};
+const answerCard = document.getElementById('answerCard');
+const answerText = document.getElementById('answerText');
+const answerVerdict = document.getElementById('answerVerdict');
+const answerWhy = document.getElementById('answerWhy');
+const btnBare = document.getElementById('btnBare');
+const btnConf = document.getElementById('btnConf');
+let typeTimer = null;
+function typeAnswer(key){
+  const a = ANSWERS[key];
+  answerCard.classList.remove('larp','right'); answerCard.classList.add(a.cls);
+  answerVerdict.textContent = a.v;
+  answerWhy.textContent = a.why;
+  clearInterval(typeTimer); answerText.textContent = '';
+  if(reduced){ answerText.textContent = a.text; return; }
+  let i = 0;
+  typeTimer = setInterval(()=>{
+    answerText.textContent = a.text.slice(0, ++i);
+    if(i >= a.text.length) clearInterval(typeTimer);
+  }, 18);
+}
+btnBare.addEventListener('click', ()=>{ btnBare.classList.add('sel'); btnConf.classList.remove('sel'); typeAnswer('bare'); });
+btnConf.addEventListener('click', ()=>{ btnConf.classList.add('sel'); btnBare.classList.remove('sel'); typeAnswer('conf'); });
+typeAnswer('bare');
+
+/* ============ P3: model swap ============ */
+const SWAPS = {
+  'frontier-xl':"“Denied — purchases are only refundable within 30 days.”",
+  'open-70b':"“Unfortunately your purchase falls outside the 30-day policy.”",
+  'local-8b':"“Sorry! Refunds require purchase within the last 30 days.”"
+};
+const swapCard = document.getElementById('swapCard');
+const swapModel = document.getElementById('swapModel');
+const swapSaid = document.getElementById('swapSaid');
+const swapN = document.getElementById('swapN');
+const tried = new Set(['frontier-xl']);
+document.querySelectorAll('.mchip').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    document.querySelectorAll('.mchip').forEach(c=>c.classList.remove('sel'));
+    ch.classList.add('sel');
+    const m = ch.dataset.model; tried.add(m);
+    swapN.textContent = tried.size;
+    if(reduced){ swapModel.textContent = 'MODEL: '+m.toUpperCase(); swapSaid.textContent = SWAPS[m]; return; }
+    swapCard.classList.add('flip');
+    setTimeout(()=>{
+      swapModel.textContent = 'MODEL: '+m.toUpperCase();
+      swapSaid.textContent = SWAPS[m];
+      swapCard.classList.remove('flip');
+    }, 300);
+  });
+});
+
+/* ============ P4: flow particles canvas ============ */
+const fc = document.getElementById('flowCanvas');
+const fctx = fc.getContext('2d');
+const pipeWrap = document.querySelector('.pipewrap');
+const gates = [...document.querySelectorAll('.gate')];
+const srcCol = document.getElementById('srcCol');
+const agentPort = document.getElementById('agentPort');
+let flows = [];
+function sizeFlow(){
+  const r = pipeWrap.getBoundingClientRect();
+  fc.width = r.width * devicePixelRatio;
+  fc.height = r.height * devicePixelRatio;
+  fc.style.width = r.width+'px'; fc.style.height = r.height+'px';
+  fctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+function centerOf(el){
+  const wr = pipeWrap.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  return {x: r.left + r.width/2 - wr.left, y: r.top + r.height/2 - wr.top};
+}
+function spawnFlow(){
+  const srcs = [...srcCol.children];
+  const from = centerOf(srcs[Math.floor(Math.random()*srcs.length)]);
+  const pts = [from, ...gates.map(centerOf), centerOf(agentPort)];
+  flows.push({pts, seg:0, t:0, sp:.010 + Math.random()*.008});
+}
+function drawFlow(){
+  sizeFlowIfNeeded();
+  fctx.clearRect(0,0,fc.width,fc.height);
+  if(flows.length < 14 && Math.random() < .3) spawnFlow();
+  flows = flows.filter(f=>f.seg < f.pts.length-1);
+  for(const f of flows){
+    f.t += f.sp;
+    if(f.t >= 1){ f.t = 0; f.seg++; if(f.seg >= f.pts.length-1) continue; }
+    const a = f.pts[f.seg], b = f.pts[f.seg+1];
+    const ease = f.t<.5 ? 2*f.t*f.t : 1-Math.pow(-2*f.t+2,2)/2;
+    const x = a.x + (b.x-a.x)*ease, y = a.y + (b.y-a.y)*ease;
+    const mint = f.seg >= 4;
+    const col = mint ? '13,138,99' : '181,121,10';
+    fctx.beginPath(); fctx.arc(x,y,2.4,0,7);
+    fctx.fillStyle = `rgba(${col},.9)`; fctx.shadowColor = `rgb(${col})`; fctx.shadowBlur = 8;
+    fctx.fill(); fctx.shadowBlur = 0;
+    fctx.beginPath(); fctx.moveTo(a.x,a.y); fctx.lineTo(x,y);
+    fctx.strokeStyle = `rgba(${col},.10)`; fctx.lineWidth = 1; fctx.stroke();
+  }
+  requestAnimationFrame(drawFlow);
+}
+let lastW = 0;
+function sizeFlowIfNeeded(){
+  const w = pipeWrap.getBoundingClientRect().width;
+  if(Math.abs(w-lastW) > 2){ lastW = w; sizeFlow(); }
+}
+sizeFlow(); addEventListener('resize', sizeFlow);
+if(!reduced) requestAnimationFrame(drawFlow);
+
+/* ============ P4: narrated story ============ */
+const stagey = document.getElementById('stagey');
+const subText = document.getElementById('subText');
+const runBtn2 = document.getElementById('runBtn');
+const SUBS = {
+  0:"you set the pace — click ▶ (or press →) for one beat at a time",
+  1:"gate 1 · read-only taps go live — the wiki, the threads, the tickets",
+  2:"gate 2 · a judgment call surfaces in #cs-escalations. no document ever knew it",
+  3:"gate 3 · wiki says 30. slack says 45. savant takes a position — and keeps the receipts",
+  4:"gate 4 · one tool call inside the loop later: correct, with citations"
+};
+let stage = 0;
+function setStage(n){
+  stage = Math.max(0, Math.min(4, n));
+  for(let i=1;i<=4;i++) stagey.classList.toggle('p'+i, i<=stage);
+  gates.forEach((g,i)=>g.classList.toggle('hot', i+1<=stage));
+  subText.textContent = SUBS[stage];
+  subText.classList.remove('cur'); void subText.offsetWidth; subText.classList.add('cur');
+  runBtn2.textContent = stage>=4 ? '↻ Restart' : (stage===0 ? '▶ Tell the story' : `▶ Next beat · ${stage} / 4`);
+}
+runBtn2.addEventListener('click', ()=>setStage(stage>=4 ? 0 : stage+1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') setStage(stage+1);
+  if(e.key==='ArrowLeft') setStage(stage-1);
+});
+</script>
+</body>
+</html>
