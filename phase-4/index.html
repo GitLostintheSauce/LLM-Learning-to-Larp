@@ -80,6 +80,7 @@
   /* ---------- talkable + popover ---------- */
   .talk{position:relative; cursor:pointer; transition:transform .16s ease}
   .talk:hover{transform:translateY(-2px)}
+  .pillarchip.talk:hover{transform:translate(-50%,calc(-50% - 2px))}
   .talk::after{
     content:""; position:absolute; top:8px; right:8px; width:7px; height:7px; border-radius:50%;
     background:var(--amber); box-shadow:0 0 9px var(--amber); opacity:.85;
